@@ -225,6 +225,8 @@ window.__i18nMessages = {
       advanced: '高级',
       modelConfig: '⚙️ 模型配置',
       configGuide: '请输入大模型 API 的连接信息，支持 OpenAI 兼容协议',
+      configGuideDeepseek: '💡 本项目从想法到落地不到9天，全程深度使用DeepSeek进行开发调试，未测试过其他模型兼容性，推荐使用DeepSeek可获得更好效果。',
+      getApiKeyBtn: '快捷获取APIkey →',
 
       basicTitle: '🔧 基础配置',
       advancedTitle: '⚙️ 高级配置',
@@ -533,6 +535,8 @@ window.__i18nMessages = {
       advanced: 'Advanced',
       modelConfig: '⚙️ Model Configuration',
       configGuide: 'Enter the LLM API connection info, compatible with OpenAI protocol',
+      configGuideDeepseek: '💡 This project went from idea to launch in less than 10 days, built entirely end-to-end with DeepSeek. Compatibility with other models has not been tested. We recommend using DeepSeek API for the best experience.',
+      getApiKeyBtn: 'Get API Key →',
 
       basicTitle: '🔧 Basic Configuration',
       advancedTitle: '⚙️ Advanced',

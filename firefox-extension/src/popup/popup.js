@@ -2582,3 +2582,11 @@ function initBatchDeleteDialog() {
 
 init();
 
+const deepSeekApiKeyBtn = document.getElementById('getDeepSeekApiKeyBtn');
+if (deepSeekApiKeyBtn) {
+  deepSeekApiKeyBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    chrome.tabs.create({ url: 'https://platform.deepseek.com/' });
+  });
+}
+
