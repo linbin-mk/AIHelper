@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "AI Helper",
+  "version": "1.0.0",
+  "description": "实时捕获当前页面所有网络请求，支持请求头挟持和 Cookie 监控",
+  "permissions": [
+    "sidePanel",
+    "webRequest",
+    "declarativeNetRequest",
+    "storage",
+    "activeTab",
+    "cookies",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "action": {
+    "default_title": "AI Helper - 控制面板"
+  },
+  "side_panel": {
+    "default_path": "src/panel/panel.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/request-interceptor-bridge.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/request-interceptor.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ],
+  "icons": {
+    "16": "icons/mainicon.png",
+    "48": "icons/mainicon.png",
+    "128": "icons/mainicon.png"
+  }
+}

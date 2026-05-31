@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Helper</title>
+  <link rel="stylesheet" href="../shared/css/panel.css">
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div class="tab-bar">
+        <button id="tabChatBtn" class="tab-btn active" data-i18n="tabs.chat">AI 聊天</button>
+        <button id="tabSkillsBtn" class="tab-btn" data-i18n="tabs.skills">技能</button>
+        <button id="tabMonitorBtn" class="tab-btn" data-i18n="tabs.monitor">请求监控</button>
+        <button id="tabKnowledgeBtn" class="tab-btn" data-i18n="tabs.knowledge">知识</button>
+        <button id="tabSettingsBtn" class="tab-btn" data-i18n="tabs.settings">设置</button>
+      </div>
+      <button id="closeBtn" class="close-btn" data-i18n-title="common.closePanel" title="关闭面板">✕</button>
+    </div>
+
+    <div class="content">
+      <div id="tab-chat" class="tab-content active">
+         <div class="chat-layout">
+          <div class="sidebar-capsule" id="sidebarCapsule">
+            <div class="sidebar-capsule__inner">
+              <button class="capsule-btn" data-action="expand" title="展开侧边栏">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.67272 0.522841C10.8339 0.522841 11.76 0.522714 12.4963 0.602493C13.2453 0.683657 13.8789 0.854248 14.4264 1.25197C14.7504 1.48739 15.0355 1.77247 15.2709 2.0965C15.6686 2.64394 15.8392 3.27758 15.9204 4.02655C16.0002 4.7629 16 5.68895 16 6.85014V9.14986C16 10.3111 16.0002 11.2371 15.9204 11.9735C15.8392 12.7224 15.6686 13.3561 15.2709 13.9035C15.0355 14.2275 14.7504 14.5126 14.4264 14.748C13.8789 15.1458 13.2453 15.3163 12.4963 15.3975C11.76 15.4773 10.8339 15.4772 9.67272 15.4772H6.3273C5.16611 15.4772 4.24006 15.4773 3.50371 15.3975C2.75474 15.3163 2.1211 15.1458 1.57366 14.748C1.24963 14.5126 0.964549 14.2275 0.729131 13.9035C0.331407 13.3561 0.160817 12.7224 0.0796529 11.9735C-0.000126137 11.2371 1.25338e-09 10.3111 1.25338e-09 9.14986V6.85014C1.25329e-09 5.68895 -0.000126137 4.7629 0.0796529 4.02655C0.160817 3.27758 0.331407 2.64394 0.729131 2.0965C0.964549 1.77247 1.24963 1.48739 1.57366 1.25197C2.1211 0.854248 2.75474 0.683657 3.50371 0.602493C4.24006 0.522714 5.16611 0.522841 6.3273 0.522841H9.67272ZM5.54303 1.88715V14.1118C5.78636 14.1128 6.04709 14.1169 6.3273 14.1169H9.67272C10.8639 14.1169 11.7032 14.1164 12.3493 14.0465C12.9824 13.9779 13.3497 13.8494 13.6268 13.6482C13.8354 13.4966 14.0195 13.3125 14.1711 13.1039C14.3723 12.8268 14.5007 12.4595 14.5693 11.8264C14.6393 11.1803 14.6398 10.341 14.6398 9.14986V6.85014C14.6398 5.65896 14.6393 4.81967 14.5693 4.1736C14.5007 3.54048 14.3723 3.17318 14.1711 2.89609C14.0195 2.68747 13.8354 2.50337 13.6268 2.35179C13.3497 2.1506 12.9824 2.02212 12.3493 1.95353C11.7032 1.88358 10.8639 1.88307 9.67272 1.88307H6.3273C6.04709 1.88307 5.78636 1.8862 5.54303 1.88715ZM4.1828 1.91166C3.99125 1.9216 3.8148 1.93577 3.65076 1.95353C3.01764 2.02212 2.65034 2.1506 2.37325 2.35179C2.16463 2.50337 1.98052 2.68747 1.82895 2.89609C1.62776 3.17318 1.49928 3.54048 1.43069 4.1736C1.36074 4.81967 1.36023 5.65896 1.36023 6.85014V9.14986C1.36023 10.341 1.36074 11.1803 1.43069 11.8264C1.49928 12.4595 1.62776 12.8268 1.82895 13.1039C1.98052 13.3125 2.16463 13.4966 2.37325 13.6482C2.65034 13.8494 3.01764 13.9779 3.65076 14.0465C4.8148 14.1632 5.99125 14.0776 7.14986 14.0776H8.85014C10.0088 14.0776 11.1852 14.1632 12.3493 14.0465C12.9824 13.9779 13.3497 13.8494 13.6268 13.6482C13.8354 13.4966 14.0195 13.3125 14.1711 13.1039C14.3723 12.8268 14.5007 12.4595 14.5693 11.8264C14.6393 11.1803 14.6398 10.341 14.6398 9.14986V6.85014C14.6398 5.65896 14.6393 4.81967 14.5693 4.1736C14.5007 3.54048 14.3723 3.17318 14.1711 2.89609C14.0195 2.68747 13.8354 2.50337 13.6268 2.35179C13.3497 2.1506 12.9824 2.02212 12.3493 1.95353C11.1852 1.836 10.0088 1.92232 8.85014 1.92232H7.14986C5.99125 1.92232 4.8148 1.836 3.65076 1.95353C3.01764 2.02212 2.65034 2.1506 2.37325 2.35179Z" fill="currentColor"/></svg>
+              </button>
+              <button class="capsule-btn" data-action="search" title="搜索会话">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.894845 6.647401C11.894845 3.725463 9.534486 1.356779 6.623219 1.35657C3.711786 1.35657 1.351635 3.725338 1.351635 6.647401C1.351843 9.569296 3.711911 11.938273 6.623219 11.938273C9.534361 11.938064 11.894637 9.569171 11.894845 6.647401ZM13.245462 6.647401C13.245254 10.317935 10.280401 13.293613 6.623219 13.293821C2.965871 13.293821 0.000204 10.31806 0 6.647401C0 2.976574 2.965746 0 6.623219 0C10.280526 0.000205 13.245462 2.9767 13.245462 6.647401Z" fill="currentColor"/><path d="M16.000417 15.041079L15.044449 16.000433L11.530434 12.473588L12.486298 11.514234L16.000417 15.041079Z" fill="currentColor"/></svg>
+              </button>
+              <button class="capsule-btn" data-action="new-session" title="新建会话">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 0.599609C3.91309 0.599609 0.599609 3.91309 0.599609 8C0.599609 9.13376 0.855461 10.2098 1.3125 11.1719L1.5918 11.7588L2.76562 11.2012L2.48633 10.6143C2.11034 9.82278 1.90039 8.93675 1.90039 8C1.90039 4.63106 4.63106 1.90039 8 1.90039C11.3689 1.90039 14.0996 4.63106 14.0996 8C14.0996 11.3689 11.3689 14.0996 8 14.0996C7.31041 14.0996 6.80528 14.0514 6.35742 13.9277C5.91623 13.8059 5.49768 13.6021 4.99707 13.2529C4.26492 12.7422 3.21611 12.5616 2.35156 13.1074L2.33789 13.1162L2.32422 13.126L1.58789 13.6436L2.01953 14.9297L3.0459 14.207C3.36351 14.0065 3.83838 14.0294 4.25293 14.3184C4.84547 14.7317 5.39743 15.011 6.01172 15.1807C6.61947 15.3485 7.25549 15.4004 8 15.4004C12.0869 15.4004 15.4004 12.0869 15.4004 8C15.4004 3.91309 12.0869 0.599609 8 0.599609ZM7.34473 4.93945V7.34961H4.93945V8.65039H7.34473V11.0605H8.64551V8.65039H11.0605V7.34961H8.64551V4.93945H7.34473Z" fill="currentColor"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="chat-sidebar" id="chatSidebar">
+            <div class="chat-sidebar__toolbar">
+              <span class="sidebar-toolbar__brand">AIHelper</span>
+              <button id="sidebarCollapseBtn" class="sidebar-toolbar__btn" title="收起侧边栏">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.67272 0.522841C10.8339 0.522841 11.76 0.522714 12.4963 0.602493C13.2453 0.683657 13.8789 0.854248 14.4264 1.25197C14.7504 1.48739 15.0355 1.77247 15.2709 2.0965C15.6686 2.64394 15.8392 3.27758 15.9204 4.02655C16.0002 4.7629 16 5.68895 16 6.85014V9.14986C16 10.3111 16.0002 11.2371 15.9204 11.9735C15.8392 12.7224 15.6686 13.3561 15.2709 13.9035C15.0355 14.2275 14.7504 14.5126 14.4264 14.748C13.8789 15.1458 13.2453 15.3163 12.4963 15.3975C11.76 15.4773 10.8339 15.4772 9.67272 15.4772H6.3273C5.16611 15.4772 4.24006 15.4773 3.50371 15.3975C2.75474 15.3163 2.1211 15.1458 1.57366 14.748C1.24963 14.5126 0.964549 14.2275 0.729131 13.9035C0.331407 13.3561 0.160817 12.7224 0.0796529 11.9735C-0.000126137 11.2371 1.25338e-09 10.3111 1.25338e-09 9.14986V6.85014C1.25329e-09 5.68895 -0.000126137 4.7629 0.0796529 4.02655C0.160817 3.27758 0.331407 2.64394 0.729131 2.0965C0.964549 1.77247 1.24963 1.48739 1.57366 1.25197C2.1211 0.854248 2.75474 0.683657 3.50371 0.602493C4.24006 0.522714 5.16611 0.522841 6.3273 0.522841H9.67272ZM5.54303 1.88715V14.1118C5.78636 14.1128 6.04709 14.1169 6.3273 14.1169H9.67272C10.8639 14.1169 11.7032 14.1164 12.3493 14.0465C12.9824 13.9779 13.3497 13.8494 13.6268 13.6482C13.8354 13.4966 14.0195 13.3125 14.1711 13.1039C14.3723 12.8268 14.5007 12.4595 14.5693 11.8264C14.6393 11.1803 14.6398 10.341 14.6398 9.14986V6.85014C14.6398 5.65896 14.6393 4.81967 14.5693 4.1736C14.5007 3.54048 14.3723 3.17318 14.1711 2.89609C14.0195 2.68747 13.8354 2.50337 13.6268 2.35179C13.3497 2.1506 12.9824 2.02212 12.3493 1.95353C11.7032 1.88358 10.8639 1.88307 9.67272 1.88307H6.3273C6.04709 1.88307 5.78636 1.8862 5.54303 1.88715ZM4.1828 1.91166C3.99125 1.9216 3.8148 1.93577 3.65076 1.95353C3.01764 2.02212 2.65034 2.1506 2.37325 2.35179C2.16463 2.50337 1.98052 2.68747 1.82895 2.89609C1.62776 3.17318 1.49928 3.54048 1.43069 4.1736C1.36074 4.81967 1.36023 5.65896 1.36023 6.85014V9.14986C1.36023 10.341 1.36074 11.1803 1.43069 11.8264C1.49928 12.4595 1.62776 12.8268 1.82895 13.1039C1.98052 13.3125 2.16463 13.4966 2.37325 13.6482C2.65034 13.8494 3.01764 13.9779 3.65076 14.0465C4.8148 14.1632 5.99125 14.0776 7.14986 14.0776H8.85014C10.0088 14.0776 11.1852 14.1632 12.3493 14.0465C12.9824 13.9779 13.3497 13.8494 13.6268 13.6482C13.8354 13.4966 14.0195 13.3125 14.1711 13.1039C14.3723 12.8268 14.5007 12.4595 14.5693 11.8264C14.6393 11.1803 14.6398 10.341 14.6398 9.14986V6.85014C14.6398 5.65896 14.6393 4.81967 14.5693 4.1736C14.5007 3.54048 14.3723 3.17318 14.1711 2.89609C14.0195 2.68747 13.8354 2.50337 13.6268 2.35179C13.3497 2.1506 12.9824 2.02212 12.3493 1.95353C11.1852 1.836 10.0088 1.92232 8.85014 1.92232H7.14986C5.99125 1.92232 4.8148 1.836 3.65076 1.95353C3.01764 2.02212 2.65034 2.1506 2.37325 2.35179Z" fill="currentColor"/></svg>
+              </button>
+            </div>
+            <div class="chat-sidebar__header">
+              <button id="newSessionBtn" class="sidebar-btn new-session-btn" title="新建会话" data-i18n="session.newSession">+ 新建会话</button>
+              <div class="sidebar-search">
+                <input type="text" id="sessionSearchInput" class="sidebar-search-input" data-i18n-placeholder="session.searchPlaceholder" placeholder="搜索会话...">
+              </div>
+            </div>
+            <div class="chat-sidebar__list" id="sessionList">
+              <!-- 会话列表动态渲染 -->
+            </div>
+            <div class="chat-sidebar__footer">
+              <span class="sidebar-model-info" id="sidebarModelInfo"></span>
+            </div>
+          </div>
+          <div class="chat-main">
+            <div class="chat-main__toolbar" id="chatMainToolbar">
+              <span class="chat-main__session-title" id="sessionTitleDisplay"></span>
+            </div>
+            <div class="chat-main__content" id="chatMainContent">
+              <div class="chat-welcome" id="chatWelcome">
+                <div class="chat-welcome__icon">
+                  <img src="../../icons/mainicon.png" width="128" height="128" alt="AI Helper">
+                </div>
+                <p class="chat-welcome__desc" data-i18n="welcome.description">你的智能AI助手，支持自然语言问答，完成左边网页的所有事情！</p>
+                <div class="chat-welcome__recent" id="welcomeRecentSessions">
+                  <h3 class="chat-welcome__recent-title" data-i18n="welcome.recentSessions">最近会话</h3>
+                  <div class="chat-welcome__recent-list" id="welcomeRecentList"></div>
+                </div>
+              </div>
+              <div class="chat-messages" id="chatMessages" style="display:none;"></div>
+            </div>
+            <div class="skill-status-bar" id="skillStatusBar" style="display:none;"></div>
+            <div class="config-prompt" id="configPrompt" style="display:none;">
+              <div class="config-prompt__content">
+                <div class="config-prompt__title" data-i18n="configPrompt.title">尚未配置大模型</div>
+                <div class="config-prompt__desc" data-i18n="configPrompt.description">请先前往设置页面配置 API 连接信息以开始 AI 对话</div>
+                <button class="config-prompt__btn" id="configPromptBtn" data-i18n="configPrompt.goToSettings">前往设置</button>
+              </div>
+            </div>
+            <div class="chat-input-area">
+              <textarea id="chatInput" class="chat-input" rows="1" data-i18n-placeholder="chat.inputPlaceholder" placeholder="输入消息，Enter 发送，Shift+Enter 换行..."></textarea>
+              <button id="sendBtn" class="send-btn" data-i18n="chat.send">发送</button>
+              <button id="stopBtn" class="stop-btn hidden" data-i18n="chat.stop">停止</button>
+            </div>
+          </div>
+        </div>
+        <!-- 右键菜单 -->
+        <div class="context-menu" id="sessionContextMenu" style="display:none;">
+          <div class="context-menu__item" data-action="rename" data-i18n="session.rename">重命名</div>
+          <div class="context-menu__item" data-action="export" data-i18n="session.exportLog">导出日志</div>
+          <div class="context-menu__divider"></div>
+          <div class="context-menu__item context-menu__item--danger" data-action="delete" data-i18n="session.delete">删除</div>
+        </div>
+        <!-- 批量删除对话框 -->
+        <div class="batch-delete-overlay" id="batchDeleteOverlay" style="display:none;">
+          <div class="batch-delete-dialog" id="batchDeleteDialog">
+            <div class="batch-delete-dialog__header">批量删除会话</div>
+            <label class="batch-delete__select-all">
+              <input type="checkbox" id="batchDeleteSelectAll">
+              <span>全选</span>
+            </label>
+            <div class="batch-delete-dialog__list" id="batchDeleteList">
+            </div>
+            <div class="batch-delete-dialog__footer">
+              <button class="batch-delete-dialog__btn batch-delete-dialog__btn--cancel" id="batchDeleteCancel">取消</button>
+              <button class="batch-delete-dialog__btn batch-delete-dialog__btn--confirm" id="batchDeleteConfirm">确定</button>
+            </div>
+          </div>
+        </div>
+        <!-- Toast 通知 -->
+        <div class="toast-container" id="toastContainer"></div>
+      </div>
+
+      <div id="tab-skills" class="tab-content">
+        <div class="smart-search-container hidden" id="smartSearchContainer">
+          <input type="text" class="smart-search-input" id="smartSearchInput" data-i18n-placeholder="smartSearch.placeholder" placeholder="输入你需要解决的场景">
+          <button class="smart-search-btn" id="smartSearchBtn" data-i18n="smartSearch.search">搜索</button>
+        </div>
+        <div class="smart-search-loading hidden" id="smartSearchLoading" data-i18n="smartSearch.checking">检测中...</div>
+        <div class="favorites-container hidden" id="favoritesContainer"></div>
+        <div class="skills-categories" id="skillsCategories">
+          <div class="empty-hint">技能加载中...</div>
+        </div>
+        <div class="skill-detail-overlay hidden" id="skillDetailOverlay">
+          <div class="skill-detail-popup">
+            <div class="skill-detail-header">
+              <span class="skill-detail-title" id="skillDetailTitle"></span>
+              <div class="skill-detail-actions">
+                <button class="skill-detail-use-btn" id="skillDetailUseBtn" data-i18n="skills.useBtn">使用</button>
+                <button class="skill-detail-close-btn" id="skillDetailCloseBtn">&times;</button>
+              </div>
+            </div>
+            <div class="skill-detail-body" id="skillDetailBody"></div>
+          </div>
+        </div>
+        <!-- 收藏夹选择悬浮框 -->
+        <div class="favorite-overlay hidden" id="favoriteCollectionPopup">
+          <div class="favorite-popup">
+            <div class="favorite-popup-header">
+              <span data-i18n="favorites.selectCollection">选择收藏夹</span>
+              <button class="favorite-popup-close">&times;</button>
+            </div>
+            <div class="favorite-popup-body" id="favoriteCollectionList"></div>
+            <div class="favorite-popup-footer">
+              <button class="favorite-popup-new-btn" id="favoriteNewCollectionBtn" data-i18n="favorites.newCollection">新建收藏夹</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 技能右键收藏菜单 -->
+      <div class="context-menu" id="skillContextMenu" style="display:none;">
+        <div class="context-menu__item" data-action="favorite" data-i18n="favorites.collect">收藏</div>
+      </div>
+      <!-- 收藏卡右键菜单 -->
+      <div class="context-menu" id="favoriteCardContextMenu" style="display:none;">
+        <div class="context-menu__item" data-action="unfavorite" data-i18n="favorites.unfavorite">取消收藏</div>
+        <div class="context-menu__divider"></div>
+        <div class="context-menu__item context-menu__item--danger" data-action="deleteCollection" data-i18n="favorites.deleteCollection">删除收藏卡</div>
+      </div>
+
+      <div id="tab-monitor" class="tab-content">
+        <div class="section">
+          <div class="label" data-i18n="monitor.currentTarget">📍 当前目标:</div>
+          <div id="currentUrl" class="url-text" data-i18n="common.loading">加载中...</div>
+        </div>
+
+        <div class="section">
+          <div class="label" data-i18n="monitor.capturedRequests">🔍 捕获到的请求:</div>
+          <div class="request-list" id="requestList">
+            <div class="empty-hint" data-i18n="monitor.waitingRequests">等待请求...</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="cookie-row">
+            <span id="cookieInfo" class="cookie-text" data-i18n="monitor.cookieLoading">🍪 Cookie: 加载中...</span>
+          </div>
+          <div class="header-row">
+            <span id="headerStatus" class="header-status" data-i18n="monitor.headerStatusNone">🔑 已挟持 Header: 无</span>
+          </div>
+        </div>
+
+        <div class="section header-form-section">
+          <div class="label" data-i18n="monitor.headerManage">🔑 请求头管理</div>
+          <div class="header-form">
+            <input type="text" id="headerName" class="header-input" data-i18n-placeholder="monitor.headerName" placeholder="Header 名称">
+            <input type="text" id="headerValue" class="header-input" data-i18n-placeholder="monitor.headerValue" placeholder="Header 值">
+            <button id="addHeaderBtn" class="add-btn" data-i18n="monitor.add">添加</button>
+          </div>
+          <div id="headerList" class="header-list"></div>
+        </div>
+      </div>
+
+      <div id="tab-knowledge" class="tab-content">
+        <div class="knowledge-toolbar">
+          <span class="knowledge-title" data-i18n="knowledge.title">知识管理</span>
+          <button id="addKnowledgeBtn" class="toolbar-btn" title="添加知识文件" data-i18n="knowledge.addKnowledge">+ 添加知识</button>
+        </div>
+        <input type="file" id="knowledgeFileInput" multiple style="display:none">
+        <input type="file" id="knowledgeFileInputSingle" style="display:none">
+        <input type="file" id="knowledgeFolderInput" webkitdirectory style="display:none">
+        <div class="knowledge-picker-overlay hidden" id="knowledgePicker">
+          <div class="knowledge-picker">
+            <div class="knowledge-picker-header">
+              <span class="knowledge-picker-title" data-i18n="knowledge.pickerTitle">添加知识</span>
+              <button class="knowledge-picker-close" id="pickerCloseBtn" data-i18n-title="common.close" title="关闭">✕</button>
+            </div>
+            <div class="knowledge-picker-options">
+              <button id="pickerPickFilesBtn" class="knowledge-picker-btn" data-i18n="knowledge.pickFiles">📄 选择文件</button>
+              <button id="pickerPickFolderBtn" class="knowledge-picker-btn" data-i18n="knowledge.pickFolder">📁 选择文件夹</button>
+            </div>
+          </div>
+        </div>
+        <div id="knowledgeList" class="knowledge-list">
+          <div class="empty-hint" data-i18n="knowledge.emptyHint">暂无知识文件，点击添加知识</div>
+        </div>
+      </div>
+
+      <div id="tab-settings" class="tab-content">
+        <div class="settings-layout">
+          <div class="settings-nav">
+            <div class="settings-nav-item active" data-section="provider" data-i18n="settings.provider">供应商</div>
+            <div class="settings-nav-item" data-section="basic" data-i18n="settings.basic">基础配置</div>
+            <div class="settings-nav-item" data-section="advanced" data-i18n="settings.advanced">高级</div>
+          </div>
+          <div class="settings-content">
+            <div id="settings-provider" class="settings-section active">
+              <div class="config-container">
+                <div class="label" data-i18n="settings.modelConfig">⚙️ 模型配置</div>
+                <div id="configFormArea">
+                  <div class="config-guide" data-i18n="settings.configGuide">请输入大模型 API 的连接信息，支持 OpenAI 兼容协议</div>
+
+                  <div class="config-form">
+                    <div class="config-field">
+                      <label class="config-label" for="apiBaseUrl">API Base URL <span class="required">*</span></label>
+                      <input type="text" id="apiBaseUrl" class="config-input" placeholder="https://api.deepseek.com" value="https://api.deepseek.com">
+                      <span class="config-error" id="apiBaseUrlError"></span>
+                    </div>
+                    <div class="config-field">
+                      <label class="config-label" for="apiKey">API Key <span class="required">*</span></label>
+                      <input type="password" id="apiKey" class="config-input" placeholder="sk-...">
+                      <span class="config-hint" data-i18n="config.apiKeyHint">API Key 仅存储在本地，不会上传到任何服务器</span>
+                      <span class="config-error" id="apiKeyError"></span>
+                    </div>
+                    <div class="config-field">
+                      <label class="config-label" for="modelName">Model Name <span class="required">*</span></label>
+                      <input type="text" id="modelName" class="config-input" placeholder="deepseek-v4-flash" value="deepseek-v4-flash">
+                      <span class="config-error" id="modelNameError"></span>
+                    </div>
+
+                  </div>
+                  <div id="saveStatus" class="save-status"></div>
+                  <div class="config-actions">
+                    <button id="configSaveBtn" class="save-btn" data-i18n="config.save">保存配置</button>
+                  </div>
+                </div>
+                <div id="configCardArea" style="display:none;">
+                  <div id="configCard" class="config-card">
+                    <button id="cardRefreshBtn" class="card-refresh-btn" data-i18n-title="config.cardRefresh">🔄</button>
+                    <div class="card-info">
+                      <div class="card-info-row">
+                        <span class="card-info-label" data-i18n="config.cardApiBaseUrl">模型地址</span>
+                        <span class="card-info-value" id="cardApiBaseUrl"></span>
+                      </div>
+                      <div class="card-info-row">
+                        <span class="card-info-label" data-i18n="config.cardModelName">模型名称</span>
+                        <span class="card-info-value" id="cardModelName"></span>
+                      </div>
+                    </div>
+                    <div class="card-status-row">
+                      <span class="card-status" id="cardStatus"></span>
+                    </div>
+                    <div class="card-actions">
+                      <button id="cardEditBtn" class="card-edit-btn" data-i18n="config.cardEdit">编辑配置</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="settings-basic" class="settings-section">
+              <div class="config-container">
+                <div class="label" data-i18n="settings.basicTitle">🔧 基础配置</div>
+                <div class="config-form">
+                  <div class="config-field">
+                    <label class="config-label" data-i18n="settings.language">语言</label>
+                    <select id="languageSelect" class="config-input">
+                      <option value="auto">跟随系统</option>
+                      <option value="zh-CN">中文</option>
+                      <option value="en">English</option>
+                    </select>
+                  </div>
+                  <div class="config-field">
+                    <label class="config-label" data-i18n="settings.darkMode">黑夜模式</label>
+                    <div class="toggle-row">
+                      <label class="toggle-switch">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="toggle-slider"></span>
+                      </label>
+                      <span class="toggle-label" data-i18n="settings.darkModeHint">开启为黑夜模式，关闭为白天模式</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="config-actions">
+                  <button id="basicConfigSaveBtn" class="save-btn" data-i18n="config.save">保存配置</button>
+                </div>
+              </div>
+            </div>
+            <div id="settings-advanced" class="settings-section">
+              <div class="config-container">
+                <div class="label" data-i18n="settings.advancedTitle">⚙️ 高级配置</div>
+                <div class="config-form">
+                  <div class="config-field">
+                    <label class="config-label" for="maxToolRounds" data-i18n="settings.maxToolRounds">工具调用最大轮次</label>
+                    <input type="number" id="maxToolRounds" class="config-input" placeholder="5000" min="1" step="1">
+                    <span class="config-hint" data-i18n="settings.maxToolRoundsHint">AI Agent Loop 中工具调用的最大轮次，超过此值将强制终止</span>
+                    <span class="config-error" id="maxToolRoundsError"></span>
+                  </div>
+                  <div class="config-field">
+                    <label class="config-label" data-i18n="settings.debugMode">调试模式</label>
+                    <div class="toggle-row">
+                      <label class="toggle-switch">
+                        <input type="checkbox" id="debugModeToggle">
+                        <span class="toggle-slider"></span>
+                      </label>
+                      <span class="toggle-label" data-i18n="settings.debugModeHint">开启后显示「导出日志」按钮和「请求监控」Tab</span>
+                    </div>
+                  </div>
+                  <div class="config-field" id="agentsMdField" style="display:none;">
+                    <label class="config-label">
+                      <span data-i18n="settings.systemPrompt">系统主提示词：</span>
+                      <span id="viewAgentsMdBtn" class="agents-md-link" data-i18n="settings.systemPromptFile">AGENTS.md</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="config-actions">
+                  <button id="advancedConfigSaveBtn" class="save-btn" data-i18n="config.save">保存配置</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="fileModalOverlay" class="file-modal-overlay hidden">
+    <div class="file-modal">
+      <div class="file-modal-header">
+        <span class="file-modal-path"></span>
+        <button class="file-modal-close" title="关闭" data-i18n-title="common.close">✕</button>
+      </div>
+      <div class="file-modal-content"></div>
+    </div>
+  </div>
+
+  <div id="fileManagerOverlay" class="file-manager-overlay hidden">
+    <div class="file-manager">
+      <div class="file-manager-header">
+        <span class="file-manager-title">文件管理</span>
+        <button class="file-manager-close" title="关闭" data-i18n-title="common.close">✕</button>
+      </div>
+      <div class="file-manager-tree" id="fileManagerTree"></div>
+    </div>
+  </div>
+
+  <script src="../shared/lib/marked.min.js"></script>
+  <script src="../shared/skill-registry.js"></script>
+  <script src="../shared/session-manager.js"></script>
+  <script src="../shared/i18n.js"></script>
+  <script src="../shared/config.js"></script>
+  <script src="../shared/agents-md-cache.js"></script>
+  <script src="../shared/favorites-manager.js"></script>
+  <script src="../shared/chat.js"></script>
+  <script src="../shared/knowledge.js"></script>
+  <script src="../shared/memory.js"></script>
+  <script src="../shared/output-files.js"></script>
+  <script src="panel.js"></script>
+</body>
+</html>

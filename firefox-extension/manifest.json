@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "AI Helper",
+  "version": "1.0.0",
+  "description": "实时捕获当前页面所有网络请求，支持请求头挟持和 Cookie 监控",
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "storage",
+    "activeTab",
+    "cookies",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "scripts": ["src/headerManager.js", "src/background.js"]
+  },
+  "action": {
+    "default_title": "AI Helper - 控制面板"
+  },
+  "sidebar_action": {
+    "default_panel": "src/popup/popup.html",
+    "default_title": "AI Helper"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/request-interceptor-bridge.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/request-interceptor.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ],
+  "icons": {
+    "16": "icons/mainicon.png",
+    "48": "icons/mainicon.png",
+    "128": "icons/mainicon.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "linbin172053362@gmail.com",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "AIHelper Spike - MAIN World Test",
+  "version": "1.0",
+  "description": "验证 request-interceptor.js 在 Firefox MAIN world 中的 fetch/XHR hook 行为",
+  "permissions": ["scripting", "activeTab"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "scripts": ["spike-background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["spike-bridge.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["spike-interceptor.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "aihelper-spike@example.org"
+    }
+  }
+}
