@@ -1,6 +1,9 @@
 .DS_Store
 Thumbs.db
 
+kilo.json
+.gitignore
+
 openspec/
 
 node_modules/
