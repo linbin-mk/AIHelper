@@ -1,0 +1,13 @@
+.DS_Store
+Thumbs.db
+
+openspec/
+
+node_modules/
+package-lock.json
+
+.vscode/
+.idea/
+
+.env
+.env.*
