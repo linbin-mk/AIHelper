@@ -1778,6 +1778,81 @@ body {
   margin-top: 8px;
   padding: 8px 0 0 12px;
   border-top: 1px solid var(--ctp-surface0);
+  flex-wrap: wrap;
+}
+
+.attach-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  color: var(--ctp-subtext0);
+  border: 1px solid var(--ctp-surface0);
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.attach-btn:hover {
+  background: var(--ctp-surface0);
+  color: var(--ctp-text);
+}
+
+.attach-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.chat-file-tags {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0 0 4px 0;
+}
+
+.file-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px 2px 8px;
+  background: var(--ctp-mantle);
+  border: 1px solid var(--ctp-surface0);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--ctp-text);
+  max-width: 200px;
+}
+
+.file-tag-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-tag-size {
+  color: var(--ctp-subtext0);
+  flex-shrink: 0;
+}
+
+.file-tag-remove {
+  cursor: pointer;
+  color: var(--ctp-subtext0);
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+  border: none;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.file-tag-remove:hover {
+  color: var(--ctp-red);
 }
 
 .chat-input {

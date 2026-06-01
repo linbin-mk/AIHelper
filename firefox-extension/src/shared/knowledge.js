@@ -55,6 +55,13 @@ async function loadKnowledgeItems() {
         items.unshift(memoryItem);
       }
     }
+
+    if (typeof loadUserSubmitItem === 'function') {
+      const userSubmitItem = await loadUserSubmitItem();
+      if (userSubmitItem) {
+        items.unshift(userSubmitItem);
+      }
+    }
     return items;
   } catch {
     return [];
@@ -64,7 +71,7 @@ async function loadKnowledgeItems() {
 async function saveKnowledgeItems(items) {
   try {
     const clean = items.filter(function(item) {
-      return item.type !== 'memory' && item.type !== 'output';
+      return item.type !== 'memory' && item.type !== 'output' && item.type !== 'user_submit';
     });
     await chrome.storage.local.set({ [KNOWLEDGE_KEY]: clean });
   } catch {
@@ -859,11 +866,15 @@ function createKnowledgeCard(item) {
   if (item.type === 'output') {
     card.classList.add('knowledge-card--output');
   }
+  if (item.type === 'user_submit') {
+    card.classList.add('knowledge-card--user-submit');
+  }
   card.setAttribute('data-knowledge-id', item.id);
 
   const isMemory = item.type === 'memory';
   const isOutput = item.type === 'output';
-  const displayName = isMemory ? '🧠 记忆' : (isOutput ? '📦 工作产物' : escapeHtml(item.displayName));
+  const isUserSubmit = item.type === 'user_submit';
+  const displayName = isMemory ? '🧠 记忆' : (isOutput ? '📦 工作产物' : (isUserSubmit ? '📤 用户聊天提交文件' : escapeHtml(item.displayName)));
 
   card.innerHTML = `
     <div class="knowledge-card-header">
@@ -871,11 +882,11 @@ function createKnowledgeCard(item) {
       <button class="knowledge-card-delete" data-action="delete" title="${t('knowledge.delete')}">✕</button>
     </div>
     <div class="knowledge-card-desc" data-action="edit-desc">
-      <span class="knowledge-card-desc-text">${item.description ? escapeHtml(item.description) : (isMemory ? '暂无记忆，完成 AI 对话后将自动生成' : (isOutput ? '暂无产物，AI 工作后将自动生成' : '<span class="knowledge-card-desc-placeholder">' + t('knowledge.noDescription') + '</span>'))}</span>
+      <span class="knowledge-card-desc-text">${item.description ? escapeHtml(item.description) : (isMemory ? '暂无记忆，完成 AI 对话后将自动生成' : (isOutput ? '暂无产物，AI 工作后将自动生成' : (isUserSubmit ? '用户在聊天中提交的文件' : '<span class="knowledge-card-desc-placeholder">' + t('knowledge.noDescription') + '</span>')))}</span>
     </div>
     <div class="knowledge-card-meta">
       <span class="knowledge-card-time">${formatTime(item.createdAt)}</span>
-      <span class="knowledge-card-count">${isMemory ? '记忆: ' + (item.fileCount || 0) + '个文件 / ' + (item.domainCount || 0) + '个域名' : (isOutput ? '产物: ' + (item.fileCount || 0) + '个文件' : (item.fileCount || 0) + ' ' + t('knowledge.fileCount'))}</span>
+      <span class="knowledge-card-count">${isMemory ? '记忆: ' + (item.fileCount || 0) + '个文件 / ' + (item.domainCount || 0) + '个域名' : (isOutput ? '产物: ' + (item.fileCount || 0) + '个文件' : (isUserSubmit ? '提交: ' + (item.fileCount || 0) + '个文件' : (item.fileCount || 0) + ' ' + t('knowledge.fileCount')))}</span>
     </div>
     <div class="knowledge-card-actions">
       <button class="knowledge-card-file-btn" data-action="manage-files">${t('knowledge.fileTree')}</button>
@@ -883,12 +894,12 @@ function createKnowledgeCard(item) {
   `;
 
   const nameEl = card.querySelector('.knowledge-card-name');
-  if (!isMemory && !isOutput) {
+  if (!isMemory && !isOutput && !isUserSubmit) {
     nameEl.addEventListener('click', () => startEditName(item.id, nameEl));
   }
 
   const descEl = card.querySelector('.knowledge-card-desc');
-  if (!isMemory && !isOutput) {
+  if (!isMemory && !isOutput && !isUserSubmit) {
     descEl.addEventListener('click', () => startEditDesc(item.id, descEl));
   }
 
@@ -898,6 +909,8 @@ function createKnowledgeCard(item) {
       handleDeleteMemory();
     } else if (isOutput) {
       handleDeleteOutput();
+    } else if (isUserSubmit) {
+      handleDeleteUserSubmit();
     } else {
       handleDeleteKnowledge(item);
     }
@@ -1019,6 +1032,14 @@ async function handleDeleteOutput() {
   if (!confirm('确定清空所有工作产物文件并删除产物卡片吗？')) return;
   if (typeof deleteOutputCard === 'function') {
     await deleteOutputCard();
+  }
+  renderKnowledgeList();
+}
+
+async function handleDeleteUserSubmit() {
+  if (!confirm('确定清空所有用户提交文件并删除卡片吗？')) return;
+  if (typeof deleteUserSubmitCard === 'function') {
+    await deleteUserSubmitCard();
   }
   renderKnowledgeList();
 }

@@ -553,11 +553,52 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'search_user_files',
+      description: '查询「用户聊天提交文件」卡片中的文件列表。支持按路径前缀过滤，返回文件路径、类型（file/directory）和内容预览。用于了解用户通过聊天附件提交了哪些文件',
+      parameters: {
+        type: 'object',
+        properties: {
+          pathPrefix: { type: 'string', description: '路径前缀过滤，如会话ID。用于查询某次提交的所有文件' }
+        },
+        required: []
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_user_file',
+      description: '读取「用户聊天提交文件」卡片中指定文件的完整内容。通常与 search_user_files 配合使用，先搜索找到文件路径再读取',
+      parameters: {
+        type: 'object',
+        properties: {
+          filePath: { type: 'string', description: '文件路径，如 abc123/error.log' }
+        },
+        required: ['filePath']
+      },
+    },
+  },
 ];
 const MAX_TOOL_ROUNDS_DEFAULT = 5000;
 const REQUEST_TIMEOUT_MS = 120000;
 const TOOL_TIMEOUT_MS = 10000;
 const CONTEXT_MAX_CHARS = 1000;
+
+const MAX_FILE_COUNT = 5;
+
+const ALLOWED_EXTENSIONS = [
+  '.txt', '.log', '.json', '.xml', '.csv', '.md', '.yml', '.yaml',
+  '.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.html', '.css',
+  '.sql', '.sh', '.bash', '.env', '.cfg', '.ini', '.conf', '.toml',
+  '.properties', '.gradle', '.kt', '.swift', '.rs', '.go', '.c', '.h', '.cpp', '.hpp'
+];
+
+const ALLOWED_MIME_TYPES = [
+  'text/', 'application/json', 'application/javascript', 'application/xml'
+];
 
 async function getMaxToolRounds() {
   try {
@@ -1837,14 +1878,17 @@ function maskAuthData(data) {
 
 function setSending(isSending) {
   _isSending = isSending;
+  var attachBtn = document.getElementById('attachBtn');
   if (isSending) {
     sendBtn.classList.add('hidden');
     stopBtn.classList.remove('hidden');
     chatInputEl.disabled = true;
+    if (attachBtn) attachBtn.disabled = true;
   } else {
     sendBtn.classList.remove('hidden');
     stopBtn.classList.add('hidden');
     chatInputEl.disabled = false;
+    if (attachBtn) attachBtn.disabled = false;
   }
 }
 
@@ -2065,6 +2109,150 @@ chatInputEl.addEventListener('keydown', function (e) {
 
 var _isSending = false;
 
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + 'B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + 'MB';
+}
+
+function isFileTypeAllowed(file) {
+  var ext = '.' + (file.name || '').split('.').pop().toLowerCase();
+  if (ALLOWED_EXTENSIONS.indexOf(ext) !== -1) return true;
+
+  var mime = (file.type || '').toLowerCase();
+  for (var i = 0; i < ALLOWED_MIME_TYPES.length; i++) {
+    if (mime.startsWith(ALLOWED_MIME_TYPES[i])) return true;
+  }
+
+  return false;
+}
+
+function handleFileSelect(event) {
+  var files = event.target.files;
+  if (!files || files.length === 0) return;
+
+  if (!window.pendingFiles) window.pendingFiles = [];
+
+  if (window.pendingFiles.length + files.length > MAX_FILE_COUNT) {
+    if (typeof showToast === 'function') showToast(t('chat.fileTooMany'));
+    event.target.value = '';
+    return;
+  }
+
+  var loadedCount = 0;
+  var totalCount = files.length;
+
+  for (var i = 0; i < files.length; i++) {
+    (function (file) {
+      if (!isFileTypeAllowed(file)) {
+        if (typeof showToast === 'function') showToast(t('chat.fileUnsupportedType') + ': ' + file.name);
+        loadedCount++;
+        checkAllLoaded();
+        return;
+      }
+
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        window.pendingFiles.push({
+          name: file.name,
+          size: file.size,
+          content: e.target.result
+        });
+        loadedCount++;
+        checkAllLoaded();
+      };
+      reader.onerror = function () {
+        loadedCount++;
+        checkAllLoaded();
+      };
+      reader.readAsText(file);
+    })(files[i]);
+  }
+
+  function checkAllLoaded() {
+    if (loadedCount >= totalCount) {
+      renderFileTags();
+    }
+  }
+
+  event.target.value = '';
+}
+
+function renderFileTags() {
+  var container = document.getElementById('chatFileTags');
+  if (!container) return;
+
+  if (!window.pendingFiles) window.pendingFiles = [];
+
+  container.innerHTML = '';
+
+  if (window.pendingFiles.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+
+  container.style.display = 'flex';
+
+  for (var i = 0; i < window.pendingFiles.length; i++) {
+    (function (idx) {
+      var file = window.pendingFiles[idx];
+
+      var tag = document.createElement('span');
+      tag.className = 'file-tag';
+
+      var nameEl = document.createElement('span');
+      nameEl.className = 'file-tag-name';
+      nameEl.textContent = '📄 ' + file.name;
+
+      var sizeEl = document.createElement('span');
+      sizeEl.className = 'file-tag-size';
+      sizeEl.textContent = formatFileSize(file.size);
+
+      var removeBtn = document.createElement('button');
+      removeBtn.className = 'file-tag-remove';
+      removeBtn.innerHTML = '&times;';
+      removeBtn.title = t('chat.fileTagRemove');
+      removeBtn.addEventListener('click', function () {
+        window.pendingFiles.splice(idx, 1);
+        renderFileTags();
+      });
+
+      tag.appendChild(nameEl);
+      tag.appendChild(sizeEl);
+      tag.appendChild(removeBtn);
+      container.appendChild(tag);
+    })(i);
+  }
+}
+
+function buildFileUploadHint() {
+  if (!window.pendingFiles || window.pendingFiles.length === 0) return '';
+
+  var sid = window.currentSessionId;
+  var lines = ['用户提交了以下文件到「用户聊天提交文件」卡片中，请使用 get_user_file 工具读取文件内容：', ''];
+
+  for (var i = 0; i < window.pendingFiles.length; i++) {
+    lines.push('- ' + sid + '/' + window.pendingFiles[i].name);
+  }
+
+  lines.push('');
+  return lines.join('\n');
+}
+
+async function savePendingFiles() {
+  if (!window.pendingFiles || window.pendingFiles.length === 0) return;
+
+  var sid = window.currentSessionId;
+  for (var i = 0; i < window.pendingFiles.length; i++) {
+    var item = window.pendingFiles[i];
+    try {
+      await saveUserFile(sid + '/' + item.name, item.content);
+    } catch (e) {
+      console.error('[savePendingFiles] Failed to save:', item.name, e);
+    }
+  }
+}
+
 function sendChatMessage() {
   const text = chatInputEl.value.trim();
   if (!text || _isSending) return;
@@ -2122,6 +2310,12 @@ function sendChatMessage() {
 
 async function doSendMessage(text) {
   console.log('[doSendMessage] start, text:', text);
+
+  var fileHint = buildFileUploadHint();
+  var finalText = fileHint ? fileHint + text : text;
+
+  await savePendingFiles();
+
   var registry = window.__getSkillRegistry();
   var active = registry.getActive();
   window.__lastActiveSkills = active.map(function (s) {
@@ -2137,20 +2331,20 @@ async function doSendMessage(text) {
     });
   }
 
-  appendMessageBubble('user', text, true);
+  appendMessageBubble('user', finalText, true);
   var msgs = getCurrentSessionMessages();
   if (window.__lastActiveSkills.length > 0) {
     window.__lastActiveSkills.forEach(function (skill) {
       msgs.push({ role: 'skill_activation', skillId: skill.id, skillName: skill.name, skillDescription: skill.description || '', timestamp: Date.now() });
     });
   }
-  msgs.push({ role: 'user', content: text });
+  msgs.push({ role: 'user', content: finalText });
   await saveCurrentMessages();
 
   currentAbortController = new AbortController();
   const signal = currentAbortController.signal;
 
-  startAgentLoop(text, signal);
+  startAgentLoop(finalText, signal);
 }
 
 async function startAgentLoop(userMessage, signal) {
@@ -2399,6 +2593,8 @@ async function startAgentLoop(userMessage, signal) {
       }
     }
     if (handledBySkill) {
+      window.pendingFiles = [];
+      renderFileTags();
       setSending(false);
       return;
     }
@@ -2458,6 +2654,8 @@ async function startAgentLoop(userMessage, signal) {
       } catch {}
     }
 
+    window.pendingFiles = [];
+    renderFileTags();
     setSending(false);
     return;
   }
@@ -2627,6 +2825,31 @@ async function executeToolCall(name, argsStr) {
       return JSON.stringify(result);
     } catch (err) {
       return JSON.stringify({ error: '查询产物文件失败: ' + (err.message || '') });
+    }
+  }
+
+  if (name === 'search_user_files') {
+    try {
+      const args = typeof argsStr === 'string' ? JSON.parse(argsStr) : argsStr;
+      if (typeof searchUserFiles !== 'function') {
+        return JSON.stringify({ error: '用户提交文件查询功能不可用' });
+      }
+      const result = await searchUserFiles(args.pathPrefix);
+      return JSON.stringify(result);
+    } catch (err) {
+      return JSON.stringify({ error: '查询用户提交文件失败: ' + (err.message || '') });
+    }
+  }
+
+  if (name === 'get_user_file') {
+    try {
+      const args = typeof argsStr === 'string' ? JSON.parse(argsStr) : argsStr;
+      if (typeof getUserFile !== 'function') {
+        return JSON.stringify({ error: '用户提交文件读取功能不可用' });
+      }
+      return await getUserFile(args.filePath);
+    } catch (err) {
+      return JSON.stringify({ error: '读取用户提交文件失败: ' + (err.message || '') });
     }
   }
 
@@ -3636,6 +3859,15 @@ chatInputEl.addEventListener('compositionstart', () => { _isComposing = true; })
 chatInputEl.addEventListener('compositionend', () => { _isComposing = false; });
 
 sendBtn.addEventListener('click', sendChatMessage);
+
+var attachBtn = document.getElementById('attachBtn');
+var chatFileInput = document.getElementById('chatFileInput');
+if (attachBtn && chatFileInput) {
+  attachBtn.addEventListener('click', function () {
+    chatFileInput.click();
+  });
+  chatFileInput.addEventListener('change', handleFileSelect);
+}
 
 chatInputEl.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey && !_isComposing) {

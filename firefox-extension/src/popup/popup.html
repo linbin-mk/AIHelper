@@ -82,6 +82,9 @@
               </div>
             </div>
             <div class="chat-input-area">
+              <input type="file" id="chatFileInput" multiple style="display:none">
+              <div class="chat-file-tags" id="chatFileTags" style="display:none;"></div>
+              <button id="attachBtn" class="attach-btn" data-i18n-title="chat.attachFile" title="附件">📎</button>
               <textarea id="chatInput" class="chat-input" rows="1" data-i18n-placeholder="chat.inputPlaceholder" placeholder="输入消息，Enter 发送，Shift+Enter 换行..."></textarea>
               <button id="sendBtn" class="send-btn" data-i18n="chat.send">发送</button>
               <button id="stopBtn" class="stop-btn hidden" data-i18n="chat.stop">停止</button>
@@ -382,6 +385,7 @@
   <script src="../shared/knowledge.js"></script>
   <script src="../shared/memory.js"></script>
   <script src="../shared/output-files.js"></script>
+  <script src="../shared/user-files.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>
