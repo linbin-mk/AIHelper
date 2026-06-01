@@ -12,7 +12,7 @@ echo ""
 
 echo "[2/4] Packaging Chrome (Chromium) extension..."
 cd chrome-extension
-zip -r ../release/AIHelper-chrome.zip . -x "*.DS_Store" > /dev/null
+zip -r ../release/AIHelper-chrome.zip . -x "*.DS_Store" -x "src/shared/*.test.js" > /dev/null
 cd ..
 echo "  → release/AIHelper-chrome.zip"
 echo "  (Chrome / Edge / Opera 通用)"
@@ -20,7 +20,7 @@ echo ""
 
 echo "[3/4] Packaging Firefox extension..."
 cd firefox-extension
-zip -r ../release/AIHelper-firefox.zip . -x "*.DS_Store" -x "spike/*" > /dev/null
+zip -r ../release/AIHelper-firefox.zip . -x "*.DS_Store" -x "spike/*" -x "src/shared/*.test.js" > /dev/null
 cd ..
 echo "  → release/AIHelper-firefox.zip"
 echo ""

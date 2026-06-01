@@ -2801,5 +2801,3 @@ window.__runPanelTests = function () {
   return { passed: passed, failed: failed, total: passed + failed };
 };
 
-console.log('✅ Panel 测试用例已注册。运行 window.__runPanelTests() 开始自测。');
-
