@@ -110,6 +110,23 @@ window.__runSkillTests = async function () {
 
   reg._fetchSkillMd = origFetch;
 
+  // ─── 5b. getHistory ───
+  console.log('\n── 5b. getHistory ──');
+  var histSkill = { id: 'test-hist', name: 'HistOrig', description: 'DescOrig', category: 'Development', _prompt: '# PromptOrig', getPrompt: function () { return this._prompt; }, getTools: function () { return []; }, getUIDelegate: function () { return null; } };
+  reg.register(histSkill);
+  reg.update('test-hist', { name: 'HistEdit1' }, 'cn');
+  var hist = reg.getHistory('test-hist', 'cn');
+  assert(hist.length >= 1, '5b.1 update creates history entry');
+  assertEqual(hist[0].name, 'HistOrig', '5b.2 history captures pre-edit name');
+  assertEqual(hist[0]._prompt, '# PromptOrig', '5b.3 history captures pre-edit _prompt');
+  assert(typeof hist[0].ts === 'number', '5b.4 history has timestamp');
+  reg.update('test-hist', { name: 'HistEdit2' }, 'cn');
+  var hist2 = reg.getHistory('test-hist', 'cn');
+  assert(hist2.length >= 2, '5b.5 second update creates second history entry');
+  // 跨语言隔离
+  var enHist = reg.getHistory('test-hist', 'en');
+  assertEqual(enHist.length, 0, '5b.6 no history for unedited language');
+
   // reset non-edited skill
   reg.register({ id: 'test-reset2', name: 'R2', description: '', category: 'Testing', _prompt: '# R2', getPrompt: function () { return this._prompt; }, getTools: function () { return []; }, getUIDelegate: function () { return null; } });
   await reg.resetSkill('test-reset2', 'cn');
@@ -194,6 +211,12 @@ window.__runSkillTests = async function () {
     await saveOverrides({ deletedIds: [], editedSkills: {} });
     var cleared = await loadOverrides();
     assertEqual(cleared.deletedIds.length, 0, '10.6 cleanup - deletedIds empty');
+
+    // 清理历史测试数据
+    if (typeof clearHistory === 'function' && typeof saveHistory === 'function') {
+      clearHistory('test-hist', 'cn');
+      await saveHistory();
+    }
   }
 
   console.log('\n═══════════════════════════════════════');

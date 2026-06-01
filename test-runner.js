@@ -45,7 +45,8 @@ function loadScripts(filePaths) {
 
 const ctx = loadScripts([
   path.join(__dirname, 'shared/skill-storage.js'),
-  path.join(__dirname, 'shared/skill-registry.js')
+  path.join(__dirname, 'shared/skill-registry.js'),
+  path.join(__dirname, 'shared/skill-history.js')
 ]);
 
 // Stats
@@ -53,6 +54,11 @@ let passed = 0, failed = 0;
 const saveOverrides = ctx.saveOverrides;
 const loadOverrides = ctx.loadOverrides;
 const SkillRegistry = ctx.SkillRegistry;
+const loadHistory = ctx.loadHistory;
+const saveHistory = ctx.saveHistory;
+const addHistoryEntry = ctx.addHistoryEntry;
+const getHistory = ctx.getHistory;
+const clearHistory = ctx.clearHistory;
 
 function ok(cond, name) {
   if (cond) { console.log('  PASS: ' + name); passed++; }
@@ -196,6 +202,69 @@ async function run() {
   ok(enOv.editedSkills.lang.cn, '10.3 cn 编辑仍存在（未被en覆盖）');
   eq(enOv.editedSkills.lang.en.name, 'LangEnglish', '10.4 en 编辑已添加');
   ok(enOv.editedSkills.lang.cn.name !== enOv.editedSkills.lang.en.name, '10.5 中英文编辑内容独立');
+
+  // 11. 技能编辑历史记录
+  console.log('\n── 11. 技能编辑历史记录 ──');
+  clearHistory('h1', 'cn');
+  clearHistory('h1', 'en');
+
+  eq(getHistory('h1', 'cn').length, 0, '11.1 无历史记录');
+
+  addHistoryEntry('h1', 'cn', { ts: 100, name: 'V0原始', description: 'd0', _prompt: 'p0', category: 'Development' });
+  eq(getHistory('h1', 'cn').length, 1, '11.2 添加后1条');
+  eq(getHistory('h1', 'cn')[0].name, 'V0原始', '11.3 条目名称正确');
+
+  addHistoryEntry('h1', 'cn', { ts: 200, name: 'V1编辑', description: 'd1', _prompt: 'p1', category: 'Development' });
+  eq(getHistory('h1', 'cn').length, 2, '11.4 追加后2条');
+  eq(getHistory('h1', 'cn')[1].ts, 200, '11.5 时间戳正确');
+
+  // 跨语言隔离
+  addHistoryEntry('h1', 'en', { ts: 300, name: 'EN V0', description: 'ed', _prompt: 'ep', category: 'Testing' });
+  eq(getHistory('h1', 'en').length, 1, '11.6 en历史独立');
+  eq(getHistory('h1', 'cn').length, 2, '11.7 cn历史未被en影响');
+
+  // 持久化
+  await saveHistory();
+  ctx._historyCache = {};
+  await loadHistory();
+  eq(getHistory('h1', 'cn').length, 2, '11.8 持久化后 cn 历史恢复');
+  eq(getHistory('h1', 'en').length, 1, '11.9 持久化后 en 历史恢复');
+
+  // 上限清理 (MAX_HISTORY_ENTRIES = 20)
+  addHistoryEntry('h1', 'cn', { ts: 10, name: 'Seed', description: '', _prompt: '', category: '' });
+  eq(getHistory('h1', 'cn').length, 3, '11.10 清理前3条');
+  for (var i = 0; i < 20; i++) {
+    addHistoryEntry('h1', 'cn', { ts: 1000 + i, name: 'V' + i, description: '', _prompt: '', category: '' });
+  }
+  eq(getHistory('h1', 'cn').length, 20, '11.11 上限保持20条');
+  eq(getHistory('h1', 'cn')[0].ts, 1000, '11.12 最初3条被后续20条全部挤出, 第一条为 ts=1000');
+
+  // 12. SkillRegistry.update() 与 getHistory() 集成测试
+  console.log('\n── 12. update() → 历史自动捕获 + getHistory() ──');
+  clearHistory('int1', 'cn');
+
+  var reg4 = new SkillRegistry();
+  reg4.register(s('int1', '内置名称', '内置描述', 'Development', '#内置Prompt'));
+
+  eq(reg4.getHistory('int1', 'cn').length, 0, '12.1 初始无历史');
+
+  reg4.update('int1', { name: '第1次编辑', description: 'd1', _prompt: '#p1' }, 'cn');
+  var h1 = reg4.getHistory('int1', 'cn');
+  eq(h1.length, 1, '12.2 update() 产生1条历史');
+  eq(h1[0].name, '内置名称', '12.3 历史记录了保存前的名称');
+  eq(h1[0]._prompt, '#内置Prompt', '12.4 历史记录了保存前的_prompt');
+  ok(typeof h1[0].ts === 'number' && h1[0].ts > 0, '12.5 时间戳存在');
+
+  reg4.update('int1', { name: '第2次编辑' }, 'cn');
+  var h2 = reg4.getHistory('int1', 'cn');
+  eq(h2.length, 2, '12.6 第二次update产生第2条历史');
+  eq(h2[1].name, '第1次编辑', '12.7 第2条历史记录了第一次编辑后的名称');
+
+  // getHistory 跨语言隔离
+  eq(reg4.getHistory('int1', 'en').length, 0, '12.8 en语言无历史');
+
+  // getHistory 不存在的技能返回空数组
+  eq(reg4.getHistory('notexist', 'cn').length, 0, '12.9 不存在技能返回空数组');
 
   // 汇总
   const total = passed + failed;

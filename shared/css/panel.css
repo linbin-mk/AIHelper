@@ -3635,6 +3635,120 @@ select.config-input {
   color: var(--ctp-text);
 }
 
+/* ─── 技能历史版本悬浮框 ─── */
+
+.skill-history-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 110;
+}
+
+.skill-history-overlay.hidden {
+  display: none;
+}
+
+.skill-history-popup {
+  background: var(--ctp-base);
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 12px;
+  width: calc(100% - 48px);
+  max-width: 420px;
+  max-height: 70%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.skill-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ctp-surface0);
+  flex-shrink: 0;
+}
+
+.skill-history-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ctp-text);
+}
+
+.skill-history-close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--ctp-subtext0);
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.skill-history-close-btn:hover {
+  color: var(--ctp-text);
+}
+
+.skill-history-list {
+  padding: 8px 0;
+  overflow-y: auto;
+  flex: 1;
+  max-height: 400px;
+}
+
+.skill-history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-bottom: 1px solid var(--ctp-surface0);
+}
+
+.skill-history-item:last-child {
+  border-bottom: none;
+}
+
+.skill-history-item:hover {
+  background: var(--ctp-surface0);
+}
+
+.skill-history-item-index {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ctp-overlay2);
+  min-width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.skill-history-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.skill-history-item-time {
+  font-size: 11px;
+  color: var(--ctp-overlay1);
+}
+
+.skill-history-item-name {
+  font-size: 13px;
+  color: var(--ctp-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── End 技能历史版本悬浮框 ─── */
+
 .skill-detail-edit-form {
   padding: 16px;
   display: flex;

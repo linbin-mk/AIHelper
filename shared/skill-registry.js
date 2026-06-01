@@ -23,6 +23,15 @@ class SkillRegistry {
     var skill = this._skills.get(skillId);
     if (!skill) return false;
 
+    addHistoryEntry(skillId, langSuffix, {
+      ts: Date.now(),
+      name: skill.name,
+      description: skill.description,
+      _prompt: skill._prompt,
+      category: skill.category
+    });
+    saveHistory();
+
     if (!skill._edits) skill._edits = {};
     if (!skill._edits[langSuffix]) skill._edits[langSuffix] = {};
     var edit = skill._edits[langSuffix];
@@ -39,6 +48,10 @@ class SkillRegistry {
     this._notify({ type: 'update', skillId: skillId });
     saveOverrides(this.getOverrides());
     return true;
+  }
+
+  getHistory(skillId, langSuffix) {
+    return getHistory(skillId, langSuffix);
   }
 
   async resetSkill(skillId, langSuffix) {

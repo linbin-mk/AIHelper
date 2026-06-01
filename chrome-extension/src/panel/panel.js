@@ -1630,6 +1630,7 @@ function enterSkillEditMode(skill) {
   var useBtn = document.getElementById('skillDetailUseBtn');
   var editBtn = document.getElementById('skillDetailEditBtn');
   var resetBtn = document.getElementById('skillDetailResetBtn');
+  var titleEl = document.getElementById('skillDetailTitle');
 
   if (!formEl) return;
 
@@ -1644,6 +1645,7 @@ function enterSkillEditMode(skill) {
   if (useBtn) useBtn.style.display = 'none';
   if (editBtn) editBtn.style.display = 'none';
   if (resetBtn) resetBtn.style.display = 'none';
+  if (titleEl) titleEl.style.display = 'none';
 }
 
 function exitSkillEditMode() {
@@ -1652,6 +1654,7 @@ function exitSkillEditMode() {
   var useBtn = document.getElementById('skillDetailUseBtn');
   var editBtn = document.getElementById('skillDetailEditBtn');
   var resetBtn = document.getElementById('skillDetailResetBtn');
+  var titleEl = document.getElementById('skillDetailTitle');
 
   _currentEditingSkillId = null;
 
@@ -1659,6 +1662,7 @@ function exitSkillEditMode() {
   if (bodyEl) bodyEl.style.display = '';
   if (useBtn) useBtn.style.display = '';
   if (editBtn) editBtn.style.display = '';
+  if (titleEl) titleEl.style.display = '';
   if (resetBtn) {
     var skillId = _currentEditingSkillId || useBtn.getAttribute('data-skill-id');
     if (skillId) {
@@ -1698,16 +1702,102 @@ function saveSkillEdit() {
 }
 
 async function resetSkillEdit(skillId) {
-  var registry = window.__getSkillRegistry();
-  await registry.resetSkill(skillId, getCurrentLangSuffix());
+  showSkillHistoryOverlay(skillId);
+}
 
+function showSkillHistoryOverlay(skillId) {
+  var langSuffix = getCurrentLangSuffix();
+  var registry = window.__getSkillRegistry();
   var skill = registry.getAll().find(function (s) { return s.id === skillId; });
-  if (skill) {
-    showSkillDetail(skill);
+  var hist = registry.getHistory(skillId, langSuffix);
+
+  var titleEl = document.getElementById('skillHistoryTitle');
+  var listEl = document.getElementById('skillHistoryList');
+  var overlay = document.getElementById('skillHistoryOverlay');
+
+  if (!titleEl || !listEl || !overlay) return;
+
+  titleEl.textContent = (t('skills.historyTitle') || '版本历史') + ' - ' + (skill ? skill.name : skillId);
+
+  var html = '';
+  if (hist.length === 0) {
+    html = '<div class="skill-history-item" style="cursor:default;color:var(--ctp-subtext0);">' + (t('skills.noHistory') || '暂无历史记录') + '</div>';
+  } else {
+    for (var i = 0; i < hist.length; i++) {
+      var v = hist[i];
+      var timeStr = formatHistoryTime(v.ts);
+      var namePreview = v.name || '';
+      html += '<div class="skill-history-item" data-version-index="' + i + '">';
+      html += '<span class="skill-history-item-index">#' + (i + 1) + '</span>';
+      html += '<div class="skill-history-item-info">';
+      html += '<span class="skill-history-item-name">' + _escapeHtml(namePreview) + '</span>';
+      html += '<span class="skill-history-item-time">' + timeStr + '</span>';
+      html += '</div></div>';
+    }
   }
-  renderSkillsList();
-  renderFavorites();
-  showToast(t('skills.reset') || '已重置为默认值');
+  listEl.innerHTML = html;
+
+  overlay.setAttribute('data-skill-id', skillId);
+  overlay.classList.remove('hidden');
+}
+
+function hideSkillHistoryOverlay() {
+  var overlay = document.getElementById('skillHistoryOverlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    overlay.removeAttribute('data-skill-id');
+  }
+}
+
+function loadHistoryVersionToForm(skillId, versionIndex) {
+  var langSuffix = getCurrentLangSuffix();
+  var registry = window.__getSkillRegistry();
+  var hist = registry.getHistory(skillId, langSuffix);
+
+  if (versionIndex < 0 || versionIndex >= hist.length) return;
+
+  var version = hist[versionIndex];
+  var skill = registry.getAll().find(function (s) { return s.id === skillId; });
+  if (!skill) return;
+
+  document.getElementById('skillEditName').value = version.name || '';
+  document.getElementById('skillEditDesc').value = version.description || '';
+  document.getElementById('skillEditPrompt').value = version._prompt || '';
+
+  _currentEditingSkillId = skillId;
+
+  var bodyEl = document.getElementById('skillDetailBody');
+  var formEl = document.getElementById('skillDetailEditForm');
+  var useBtn = document.getElementById('skillDetailUseBtn');
+  var editBtn = document.getElementById('skillDetailEditBtn');
+  var resetBtn = document.getElementById('skillDetailResetBtn');
+  var titleEl = document.getElementById('skillDetailTitle');
+
+  if (bodyEl) bodyEl.style.display = 'none';
+  if (formEl) formEl.classList.remove('hidden');
+  if (useBtn) useBtn.style.display = 'none';
+  if (editBtn) editBtn.style.display = 'none';
+  if (resetBtn) resetBtn.style.display = 'none';
+  if (titleEl) titleEl.style.display = 'none';
+
+  hideSkillHistoryOverlay();
+}
+
+function formatHistoryTime(ts) {
+  if (!ts) return '';
+  var date = new Date(ts);
+  var y = date.getFullYear();
+  var m = ('0' + (date.getMonth() + 1)).slice(-2);
+  var d = ('0' + date.getDate()).slice(-2);
+  var h = ('0' + date.getHours()).slice(-2);
+  var min = ('0' + date.getMinutes()).slice(-2);
+  var s = ('0' + date.getSeconds()).slice(-2);
+  return y + '/' + m + '/' + d + ' ' + h + ':' + min + ':' + s;
+}
+
+function _escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 // ═══════════════════════════════════════════════
@@ -2245,6 +2335,28 @@ function activateFavoriteSkill(skillId) {
     resetBtn.addEventListener('click', function () {
       var skillId = useBtn.getAttribute('data-skill-id');
       if (skillId) resetSkillEdit(skillId);
+    });
+  }
+
+  // 技能历史版本悬浮框事件
+  var historyOverlay = document.getElementById('skillHistoryOverlay');
+  var historyCloseBtn = document.getElementById('skillHistoryCloseBtn');
+  var historyList = document.getElementById('skillHistoryList');
+  if (historyOverlay && historyCloseBtn) {
+    historyCloseBtn.addEventListener('click', hideSkillHistoryOverlay);
+    historyOverlay.addEventListener('click', function (e) {
+      if (e.target === historyOverlay) hideSkillHistoryOverlay();
+    });
+  }
+  if (historyList) {
+    historyList.addEventListener('click', function (e) {
+      var item = e.target.closest('.skill-history-item');
+      if (!item) return;
+      var skillId = historyOverlay.getAttribute('data-skill-id');
+      var index = parseInt(item.getAttribute('data-version-index'), 10);
+      if (skillId && !isNaN(index)) {
+        loadHistoryVersionToForm(skillId, index);
+      }
     });
   }
 })();
