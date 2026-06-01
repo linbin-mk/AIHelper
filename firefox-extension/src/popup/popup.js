@@ -1577,14 +1577,24 @@ function renderSkillsList() {
 }
 
 function showSkillDetail(skill) {
+  exitSkillEditMode();
+
   var overlay = document.getElementById('skillDetailOverlay');
   var titleEl = document.getElementById('skillDetailTitle');
   var bodyEl = document.getElementById('skillDetailBody');
   var useBtn = document.getElementById('skillDetailUseBtn');
+  var resetBtn = document.getElementById('skillDetailResetBtn');
 
   if (!overlay || !titleEl || !bodyEl || !useBtn) return;
 
   titleEl.textContent = skill.name;
+
+  var currentLang = getCurrentLangSuffix();
+  if (skill._edits && skill._edits[currentLang]) {
+    if (resetBtn) resetBtn.classList.remove('hidden');
+  } else {
+    if (resetBtn) resetBtn.classList.add('hidden');
+  }
 
   var promptContent = skill.getPrompt();
   var contentHtml = '';
@@ -1602,8 +1612,102 @@ function showSkillDetail(skill) {
 }
 
 function hideSkillDetail() {
+  exitSkillEditMode();
   var overlay = document.getElementById('skillDetailOverlay');
   if (overlay) overlay.classList.add('hidden');
+}
+
+function getCurrentLangSuffix() {
+  var lang = (window.__i18nMessages && window.__i18nMessages._lang) || 'zh-CN';
+  return (lang === 'zh-CN') ? 'cn' : 'en';
+}
+
+var _currentEditingSkillId = null;
+
+function enterSkillEditMode(skill) {
+  var bodyEl = document.getElementById('skillDetailBody');
+  var formEl = document.getElementById('skillDetailEditForm');
+  var useBtn = document.getElementById('skillDetailUseBtn');
+  var editBtn = document.getElementById('skillDetailEditBtn');
+  var resetBtn = document.getElementById('skillDetailResetBtn');
+
+  if (!formEl) return;
+
+  document.getElementById('skillEditName').value = skill.name || '';
+  document.getElementById('skillEditDesc').value = skill.description || '';
+  document.getElementById('skillEditPrompt').value = skill.getPrompt ? skill.getPrompt() : '';
+
+  _currentEditingSkillId = skill.id;
+
+  if (bodyEl) bodyEl.style.display = 'none';
+  formEl.classList.remove('hidden');
+  if (useBtn) useBtn.style.display = 'none';
+  if (editBtn) editBtn.style.display = 'none';
+  if (resetBtn) resetBtn.style.display = 'none';
+}
+
+function exitSkillEditMode() {
+  var bodyEl = document.getElementById('skillDetailBody');
+  var formEl = document.getElementById('skillDetailEditForm');
+  var useBtn = document.getElementById('skillDetailUseBtn');
+  var editBtn = document.getElementById('skillDetailEditBtn');
+  var resetBtn = document.getElementById('skillDetailResetBtn');
+
+  _currentEditingSkillId = null;
+
+  if (formEl) formEl.classList.add('hidden');
+  if (bodyEl) bodyEl.style.display = '';
+  if (useBtn) useBtn.style.display = '';
+  if (editBtn) editBtn.style.display = '';
+  if (resetBtn) {
+    var skillId = _currentEditingSkillId || useBtn.getAttribute('data-skill-id');
+    if (skillId) {
+      var registry = window.__getSkillRegistry();
+      var skill = registry.getAll().find(function (s) { return s.id === skillId; });
+      if (skill && skill._edits && skill._edits[getCurrentLangSuffix()]) {
+        resetBtn.style.display = '';
+      } else {
+        resetBtn.style.display = 'none';
+      }
+    }
+  }
+}
+
+function saveSkillEdit() {
+  var skillId = _currentEditingSkillId;
+  if (!skillId) return;
+
+  var name = document.getElementById('skillEditName').value.trim();
+  var description = document.getElementById('skillEditDesc').value.trim();
+  var prompt = document.getElementById('skillEditPrompt').value;
+
+  var registry = window.__getSkillRegistry();
+  registry.update(skillId, {
+    name: name,
+    description: description,
+    _prompt: prompt
+  }, getCurrentLangSuffix());
+
+  var skill = registry.getAll().find(function (s) { return s.id === skillId; });
+  if (skill) {
+    showSkillDetail(skill);
+  }
+  renderSkillsList();
+  renderFavorites();
+  showToast(t('skills.saved') || '保存成功');
+}
+
+async function resetSkillEdit(skillId) {
+  var registry = window.__getSkillRegistry();
+  await registry.resetSkill(skillId, getCurrentLangSuffix());
+
+  var skill = registry.getAll().find(function (s) { return s.id === skillId; });
+  if (skill) {
+    showSkillDetail(skill);
+  }
+  renderSkillsList();
+  renderFavorites();
+  showToast(t('skills.reset') || '已重置为默认值');
 }
 
 // ═══════════════════════════════════════════════
@@ -1738,6 +1842,14 @@ async function handleAddToFavorite(skillId) {
 
   pendingFavoriteSkillId = skillId;
   showFavoriteCollectionPopup();
+}
+
+function handleDeleteSkill(skillId) {
+  var registry = window.__getSkillRegistry();
+  registry.unregister(skillId);
+  renderSkillsList();
+  renderFavorites();
+  showToast(t('skills.deleted') || '已删除');
 }
 
 function showFavoriteCollectionPopup() {
@@ -2078,6 +2190,10 @@ function activateFavoriteSkill(skillId) {
   var overlay = document.getElementById('skillDetailOverlay');
   var closeBtn = document.getElementById('skillDetailCloseBtn');
   var useBtn = document.getElementById('skillDetailUseBtn');
+  var editBtn = document.getElementById('skillDetailEditBtn');
+  var saveBtn = document.getElementById('skillEditSaveBtn');
+  var cancelBtn = document.getElementById('skillEditCancelBtn');
+  var resetBtn = document.getElementById('skillDetailResetBtn');
 
   if (overlay) {
     overlay.addEventListener('click', function (e) {
@@ -2102,6 +2218,35 @@ function activateFavoriteSkill(skillId) {
       hideSkillDetail();
     });
   }
+  if (editBtn) {
+    editBtn.addEventListener('click', function () {
+      var skillId = useBtn.getAttribute('data-skill-id');
+      if (!skillId) return;
+      var registry = window.__getSkillRegistry();
+      var skill = registry.getAll().find(function (s) { return s.id === skillId; });
+      if (skill) enterSkillEditMode(skill);
+    });
+  }
+  if (saveBtn) {
+    saveBtn.addEventListener('click', saveSkillEdit);
+  }
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', function () {
+      exitSkillEditMode();
+      var skillId = _currentEditingSkillId || useBtn.getAttribute('data-skill-id');
+      if (skillId) {
+        var registry = window.__getSkillRegistry();
+        var skill = registry.getAll().find(function (s) { return s.id === skillId; });
+        if (skill) showSkillDetail(skill);
+      }
+    });
+  }
+  if (resetBtn) {
+    resetBtn.addEventListener('click', function () {
+      var skillId = useBtn.getAttribute('data-skill-id');
+      if (skillId) resetSkillEdit(skillId);
+    });
+  }
 })();
 
 // ─── 收藏功能事件绑定 ───
@@ -2112,11 +2257,15 @@ if (skillContextMenu) {
     var item = e.target.closest('.context-menu__item');
     if (!item) return;
     var action = item.getAttribute('data-action');
+    var skillId = skillContextMenu.getAttribute('data-skill-id');
     if (action === 'favorite') {
       _clearContextMenuCleanup();
       skillContextMenu.style.display = 'none';
-      var skillId = skillContextMenu.getAttribute('data-skill-id');
       if (skillId) handleAddToFavorite(skillId);
+    } else if (action === 'delete') {
+      _clearContextMenuCleanup();
+      skillContextMenu.style.display = 'none';
+      if (skillId) handleDeleteSkill(skillId);
     }
   });
 }
@@ -2589,4 +2738,68 @@ if (deepSeekApiKeyBtn) {
     chrome.tabs.create({ url: 'https://platform.deepseek.com/' });
   });
 }
+
+window.__runPanelTests = function () {
+  var passed = 0;
+  var failed = 0;
+  var results = [];
+
+  function ok(cond, name) {
+    if (cond) { results.push('  PASS: ' + name); passed++; }
+    else { results.push('  FAIL: ' + name); failed++; }
+  }
+  function eq(a, b, name) {
+    var r = a === b;
+    if (r) { results.push('  PASS: ' + name + ' (=' + JSON.stringify(b) + ')'); passed++; }
+    else { results.push('  FAIL: ' + name + ' (got ' + JSON.stringify(a) + ', expected ' + JSON.stringify(b) + ')'); failed++; }
+  }
+
+  console.log('═══════════════════════════════════════');
+  console.log('  Panel 函数自测');
+  console.log('═══════════════════════════════════════');
+
+  // escapeHtml
+  console.log('\n── escapeHtml ──');
+  eq(escapeHtml('<script>alert("x")</script>'), '&lt;script&gt;alert("x")&lt;/script&gt;', 'P1 escapeHtml escapes tags');
+  eq(escapeHtml('hello & world'), 'hello &amp; world', 'P2 escapeHtml escapes amp');
+  eq(escapeHtml(''), '', 'P3 escapeHtml empty string');
+
+  // getCurrentLangSuffix
+  console.log('\n── getCurrentLangSuffix ──');
+  if (typeof getCurrentLangSuffix === 'function') {
+    ok(typeof getCurrentLangSuffix() === 'string', 'P4 returns string');
+    ok(getCurrentLangSuffix() === 'cn' || getCurrentLangSuffix() === 'en', 'P5 returns cn or en');
+  }
+
+  // showToast (验证 toast 元素创建)
+  console.log('\n── showToast ──');
+  if (typeof showToast === 'function') {
+    var container = document.getElementById('toastContainer');
+    if (container) {
+      var before = container.children.length;
+      showToast('测试消息');
+      var after = container.children.length;
+      eq(after, before + 1, 'P6 showToast creates toast element');
+    }
+  }
+
+  // showSkillDetail / hideSkillDetail / enterSkillEditMode / exitSkillEditMode
+  console.log('\n── 技能详情弹窗 ──');
+  ok(typeof showSkillDetail === 'function', 'P7 showSkillDetail exists');
+  ok(typeof hideSkillDetail === 'function', 'P8 hideSkillDetail exists');
+  ok(typeof enterSkillEditMode === 'function', 'P9 enterSkillEditMode exists');
+  ok(typeof exitSkillEditMode === 'function', 'P10 exitSkillEditMode exists');
+  ok(typeof saveSkillEdit === 'function', 'P11 saveSkillEdit exists');
+  ok(typeof resetSkillEdit === 'function', 'P12 resetSkillEdit exists');
+  ok(typeof handleDeleteSkill === 'function', 'P13 handleDeleteSkill exists');
+
+  console.log('\n═══════════════════════════════════════');
+  console.log('  最终结果: ' + passed + ' 通过 / ' + (passed + failed) + ' 总计');
+  console.log(failed > 0 ? '  ❌ ' + failed + ' 个测试失败' : '  ✅ 全部通过');
+  console.log('═══════════════════════════════════════');
+  results.forEach(function (r) { console.log(r); });
+  return { passed: passed, failed: failed, total: passed + failed };
+};
+
+console.log('✅ Panel 测试用例已注册。运行 window.__runPanelTests() 开始自测。');
 

@@ -4,12 +4,71 @@ class SkillRegistry {
   constructor() {
     this._skills = new Map();
     this._activeIds = new Set();
+    this._deletedIds = new Set();
     this._listeners = [];
   }
 
   register(skill) {
     this._skills.set(skill.id, skill);
     this._notify({ type: 'register', skillId: skill.id });
+  }
+
+  unregister(skillId) {
+    this._deletedIds.add(skillId);
+    this._notify({ type: 'unregister', skillId: skillId });
+    saveOverrides(this.getOverrides());
+  }
+
+  update(skillId, fields, langSuffix) {
+    var skill = this._skills.get(skillId);
+    if (!skill) return false;
+
+    if (!skill._edits) skill._edits = {};
+    if (!skill._edits[langSuffix]) skill._edits[langSuffix] = {};
+    var edit = skill._edits[langSuffix];
+    if (fields.name !== undefined) edit.name = fields.name;
+    if (fields.description !== undefined) edit.description = fields.description;
+    if (fields._prompt !== undefined) edit._prompt = fields._prompt;
+    if (fields.category !== undefined) edit.category = fields.category;
+
+    if (fields.name !== undefined) skill.name = fields.name;
+    if (fields.description !== undefined) skill.description = fields.description;
+    if (fields._prompt !== undefined) skill._prompt = fields._prompt;
+    if (fields.category !== undefined) skill.category = fields.category;
+
+    this._notify({ type: 'update', skillId: skillId });
+    saveOverrides(this.getOverrides());
+    return true;
+  }
+
+  async resetSkill(skillId, langSuffix) {
+    var skill = this._skills.get(skillId);
+    if (!skill) return;
+
+    var text = await this._fetchSkillMd(skillId, langSuffix);
+    if (text === null) {
+      var fallbackSuffix = (langSuffix === 'cn') ? 'en' : 'cn';
+      text = await this._fetchSkillMd(skillId, fallbackSuffix);
+    }
+    if (text === null) return;
+
+    var parsed = this._parseSkillMd(text, skillId, langSuffix);
+    if (!parsed) return;
+
+    skill.name = parsed.name;
+    skill.description = parsed.description;
+    skill._prompt = parsed._prompt;
+    skill.category = parsed.category;
+
+    if (skill._edits) {
+      delete skill._edits[langSuffix];
+      if (Object.keys(skill._edits).length === 0) {
+        delete skill._edits;
+      }
+    }
+
+    this._notify({ type: 'reset', skillId: skillId });
+    saveOverrides(this.getOverrides());
   }
 
   activate(skillId) {
@@ -27,7 +86,49 @@ class SkillRegistry {
   }
 
   getAll() {
-    return Array.from(this._skills.values());
+    var self = this;
+    return Array.from(this._skills.values()).filter(function (s) {
+      return !self._deletedIds.has(s.id);
+    });
+  }
+
+  getOverrides() {
+    var deletedIds = Array.from(this._deletedIds);
+    var editedSkills = {};
+    this._skills.forEach(function (skill, id) {
+      if (skill._edits) {
+        editedSkills[id] = {};
+        Object.keys(skill._edits).forEach(function (lang) {
+          editedSkills[id][lang] = {
+            name: skill._edits[lang].name,
+            description: skill._edits[lang].description || '',
+            _prompt: skill._edits[lang]._prompt || '',
+            category: skill._edits[lang].category || ''
+          };
+        });
+      }
+    });
+    return { deletedIds: deletedIds, editedSkills: editedSkills };
+  }
+
+  applyOverrides(overrides) {
+    var self = this;
+    if (!overrides) return;
+    if (overrides.deletedIds && overrides.deletedIds.length > 0) {
+      overrides.deletedIds.forEach(function (id) {
+        self.unregister(id);
+      });
+    }
+    if (overrides.editedSkills) {
+      var currentLang = (window.__i18nMessages && window.__i18nMessages._lang) || 'zh-CN';
+      var langSuffix = (currentLang === 'zh-CN') ? 'cn' : 'en';
+      Object.keys(overrides.editedSkills).forEach(function (skillId) {
+        var langData = overrides.editedSkills[skillId][langSuffix];
+        if (langData) {
+          self.update(skillId, langData, langSuffix);
+        }
+      });
+    }
   }
 
   getActive() {
@@ -65,6 +166,9 @@ class SkillRegistry {
         });
       });
       await Promise.allSettled(loadPromises);
+
+      var overrides = await loadOverrides();
+      self.applyOverrides(overrides);
     } catch (e) {
       console.warn('[SkillRegistry] Error loading skills:', e);
     }

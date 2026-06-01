@@ -3463,6 +3463,12 @@ select.config-input {
   flex-shrink: 0;
 }
 
+.skill-detail-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .skill-detail-title {
   font-size: 16px;
   font-weight: 600;
@@ -3594,6 +3600,139 @@ select.config-input {
   background: var(--ctp-mantle);
   color: var(--ctp-subtext1);
   border: 1px solid var(--ctp-surface2);
+}
+
+.skill-detail-edit-btn {
+  padding: 5px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  background: var(--ctp-surface2);
+  color: var(--ctp-text);
+  transition: opacity 0.15s;
+}
+
+.skill-detail-edit-btn:hover {
+  opacity: 0.85;
+}
+
+.skill-detail-reset-btn {
+  padding: 3px 8px;
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: var(--ctp-overlay1);
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+
+.skill-detail-reset-btn:hover {
+  color: var(--ctp-text);
+}
+
+.skill-detail-edit-form {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.skill-detail-edit-form.hidden {
+  display: none;
+}
+
+.skill-edit-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ctp-subtext0);
+}
+
+.skill-edit-input {
+  padding: 8px 10px;
+  border: 1px solid var(--ctp-surface2);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--ctp-text);
+  background: var(--ctp-base);
+  outline: none;
+}
+
+.skill-edit-input:focus {
+  border-color: var(--ctp-blue);
+}
+
+.skill-edit-textarea {
+  padding: 8px 10px;
+  border: 1px solid var(--ctp-surface2);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--ctp-text);
+  background: var(--ctp-base);
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.skill-edit-textarea:focus {
+  border-color: var(--ctp-blue);
+}
+
+.skill-edit-textarea--desc {
+  min-height: 56px;
+  max-height: 80px;
+}
+
+.skill-edit-textarea--prompt {
+  min-height: 180px;
+  flex: 1;
+}
+
+.skill-edit-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid var(--ctp-surface1);
+  flex-shrink: 0;
+}
+
+.skill-edit-save-btn {
+  padding: 5px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  background: var(--ctp-green);
+  color: var(--ctp-base);
+  transition: opacity 0.15s;
+}
+
+.skill-edit-save-btn:hover {
+  opacity: 0.85;
+}
+
+.skill-edit-cancel-btn {
+  padding: 5px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  background: var(--ctp-surface1);
+  color: var(--ctp-text);
+  transition: opacity 0.15s;
+}
+
+.skill-edit-cancel-btn:hover {
+  opacity: 0.85;
 }
 
 /* ===== Chat Layout (Dual Column) ===== */

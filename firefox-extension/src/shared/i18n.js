@@ -122,6 +122,9 @@ window.__i18nMessages = {
       emptyHint: '暂无可用的技能',
       usageHint: '输入 /{id} 或直接描述需求即可使用',
       useBtn: '使用',
+      deleted: '已删除',
+      saved: '保存成功',
+      reset: '已重置为默认值',
       categories: {
         Business: '业务',
         Product: '产品',
@@ -438,6 +441,9 @@ window.__i18nMessages = {
       emptyHint: 'No skills available',
       usageHint: 'Type /{id} or describe your request to get started',
       useBtn: 'Use',
+      deleted: 'Deleted',
+      saved: 'Saved',
+      reset: 'Reset to default',
       categories: {
         Business: 'Business',
         Product: 'Product',

@@ -113,8 +113,7 @@
             </div>
           </div>
         </div>
-        <!-- Toast 通知 -->
-        <div class="toast-container" id="toastContainer"></div>
+        <!-- Toast 通知移至 body 底部，跨 tab 可见 -->
       </div>
 
       <div id="tab-skills" class="tab-content">
@@ -130,13 +129,29 @@
         <div class="skill-detail-overlay hidden" id="skillDetailOverlay">
           <div class="skill-detail-popup">
             <div class="skill-detail-header">
-              <span class="skill-detail-title" id="skillDetailTitle"></span>
+              <div class="skill-detail-header-left">
+                <span class="skill-detail-title" id="skillDetailTitle"></span>
+                <button class="skill-detail-reset-btn hidden" id="skillDetailResetBtn">重置</button>
+              </div>
               <div class="skill-detail-actions">
+                <button class="skill-detail-edit-btn" id="skillDetailEditBtn">编辑</button>
                 <button class="skill-detail-use-btn" id="skillDetailUseBtn" data-i18n="skills.useBtn">使用</button>
                 <button class="skill-detail-close-btn" id="skillDetailCloseBtn">&times;</button>
               </div>
             </div>
             <div class="skill-detail-body" id="skillDetailBody"></div>
+            <div class="skill-detail-edit-form hidden" id="skillDetailEditForm">
+              <label class="skill-edit-label">名称</label>
+              <input type="text" class="skill-edit-input" id="skillEditName">
+              <label class="skill-edit-label">描述</label>
+              <textarea class="skill-edit-textarea skill-edit-textarea--desc" id="skillEditDesc"></textarea>
+              <label class="skill-edit-label">提示内容</label>
+              <textarea class="skill-edit-textarea skill-edit-textarea--prompt" id="skillEditPrompt"></textarea>
+              <div class="skill-edit-actions">
+                <button class="skill-edit-save-btn" id="skillEditSaveBtn">保存</button>
+                <button class="skill-edit-cancel-btn" id="skillEditCancelBtn">取消</button>
+              </div>
+            </div>
           </div>
         </div>
         <!-- 收藏夹选择悬浮框 -->
@@ -156,6 +171,8 @@
       <!-- 技能右键收藏菜单 -->
       <div class="context-menu" id="skillContextMenu" style="display:none;">
         <div class="context-menu__item" data-action="favorite" data-i18n="favorites.collect">收藏</div>
+        <div class="context-menu__divider"></div>
+        <div class="context-menu__item context-menu__item--danger" data-action="delete">删除</div>
       </div>
       <!-- 收藏卡右键菜单 -->
       <div class="context-menu" id="favoriteCardContextMenu" style="display:none;">
@@ -374,7 +391,9 @@
   </div>
 
   <script src="../shared/lib/marked.min.js"></script>
+  <script src="../shared/skill-storage.js"></script>
   <script src="../shared/skill-registry.js"></script>
+  <script src="../shared/skill-registry.test.js"></script>
   <script src="../shared/session-manager.js"></script>
   <script src="../shared/i18n.js"></script>
   <script src="../shared/config.js"></script>
@@ -386,5 +405,7 @@
   <script src="../shared/output-files.js"></script>
   <script src="../shared/user-files.js"></script>
   <script src="panel.js"></script>
+  <!-- Toast 通知 -->
+  <div class="toast-container" id="toastContainer"></div>
 </body>
 </html>
