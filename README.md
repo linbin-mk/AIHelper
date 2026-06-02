@@ -26,13 +26,13 @@
 
 ## 适配平台
 
-| 平台 | 状态 | 下载 | 源码 | 官方插件地址 | 安装教程 |
-|------|------|------|------|------|------|
-| Chrome | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [下载](release/AIHelper-source.zip) | ⚡ coming soon | [教程](#chrome--edge--opera) |
-| Firefox | ✅ 已适配 | [下载](release/AIHelper-firefox.zip) | [下载](release/AIHelper-source.zip) | ⚡ coming soon | [教程](#firefox) |
-| Edge | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [下载](release/AIHelper-source.zip) | ⚡ coming soon | [教程](#chrome--edge--opera) |
-| Opera | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [下载](release/AIHelper-source.zip) | ⚡ coming soon | [教程](#chrome--edge--opera) |
-| 其他 Chromium 内核浏览器 | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [下载](release/AIHelper-source.zip) | ⚡ coming soon | [教程](#chrome--edge--opera) |
+| 平台 | 状态 | 下载 | 安装教程 |
+|------|------|------|------|
+| Chrome | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [教程](#chrome--edge--opera) |
+| Firefox | ✅ 已适配 | [下载](release/AIHelper-firefox.zip) | [教程](#firefox) |
+| Edge | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [教程](#chrome--edge--opera) |
+| Opera | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [教程](#chrome--edge--opera) |
+| 其他 Chromium 内核浏览器 | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [教程](#chrome--edge--opera) |
 
 ## 适配模型
 
