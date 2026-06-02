@@ -252,19 +252,20 @@ AIHelper/
    - Chrome：`chrome://extensions/`
    - Edge：`edge://extensions/`
 2. 开启「开发者模式」
-3. 点击「加载已解压的扩展程序」
-4. 选择 `chrome-extension/` 目录
-5. 点击工具栏图标打开侧边栏
+3. 拖入「AIHelper-chrome.zip」选择 `chrome-extension/` 目录
+4. 点击工具栏图标打开侧边栏
 
 <img src="install/chrome-2.png" width="420" />
 <br>
 <img src="install/chrome-1.png" width="420" />
+<br>
+<img src="install/chrome-3.png" width="420" />
 
 ### Firefox
 
-1. 访问 `about:debugging#/runtime/this-firefox`
+1. 访问 `about:debugging`
 2. 点击「临时载入附加组件」
-3. 选择 `firefox-extension/manifest.json`
+3. 选择 `AIHelper-firefox.zip`，或者选择源码包中`/AIHelper/firefox-extension/manifest.json`文件
 4. 点击工具栏图标打开侧边栏
 
 <img src="install/firefox-2.png" width="420" />
