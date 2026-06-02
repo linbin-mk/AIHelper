@@ -10,6 +10,18 @@
 
 聊天就能让它帮你操作网页、分析数据、记住你的习惯。
 
+## 适配平台
+
+| 平台 | 状态 | 下载 | 安装教程 |
+|------|------|------|------|
+| Chrome | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [教程](#chrome--edge--opera) |
+| Firefox | ✅ 已适配 | [下载](release/AIHelper-firefox.zip) | [教程](#firefox) |
+| Edge | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [教程](#chrome--edge--opera) |
+| Opera | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [教程](#chrome--edge--opera) |
+| 其他 Chromium 内核浏览器 | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [教程](#chrome--edge--opera) |
+
+## 例子
+
 比如你可以对它说：
 
 - **🎓「我是新入职员工，帮我熟悉一下公司的业务系统」** → 自动打开各业务系统页面，讲解功能模块和操作流程，零培训上手
@@ -24,15 +36,13 @@
 - **🛡️「帮我做一次系统巡检」** → 自动扫描多个系统页面，汇总状态并生成巡检报告
 - **🧠「所有你要用浏览器干的事，告诉我就行」** → 填表单、抢票、比价、自动签到、批量下载、监控页面变化、翻译整站……只要浏览器能做的，小A都能替你干
 
-## 适配平台
-
-| 平台 | 状态 | 下载 | 安装教程 |
-|------|------|------|------|
-| Chrome | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [教程](#chrome--edge--opera) |
-| Firefox | ✅ 已适配 | [下载](release/AIHelper-firefox.zip) | [教程](#firefox) |
-| Edge | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [教程](#chrome--edge--opera) |
-| Opera | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [教程](#chrome--edge--opera) |
-| 其他 Chromium 内核浏览器 | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [教程](#chrome--edge--opera) |
+<img src="demo/scene-01.png" width="420" />
+<br>
+<img src="demo/scene-02.png" width="420" />
+<br>
+<img src="demo/scene-03.png" width="420" />
+<br>
+<img src="demo/scene-04.png" width="420" />
 
 ## 适配模型
 
