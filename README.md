@@ -252,12 +252,20 @@ AIHelper/
 4. 选择 `chrome-extension/` 目录
 5. 点击工具栏图标打开侧边栏
 
+<img src="install/chrome-2.png" width="420" />
+<br>
+<img src="install/chrome-1.png" width="420" />
+
 ### Firefox
 
 1. 访问 `about:debugging#/runtime/this-firefox`
 2. 点击「临时载入附加组件」
 3. 选择 `firefox-extension/manifest.json`
 4. 点击工具栏图标打开侧边栏
+
+<img src="install/firefox-2.png" width="420" />
+<br>
+<img src="install/firefox-1.png" width="420" />
 
 ## 使用
 
