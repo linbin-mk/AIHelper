@@ -12,13 +12,13 @@
 
 ## 适配平台
 
-| 平台 | 状态 | 下载 | 详细安装教程 |
-|------|------|------|------|
-| Chrome | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [详细安装教程](#chrome--edge--opera) |
-| Firefox | ✅ 已适配 | [下载](release/AIHelper-firefox.zip) | [详细安装教程](#firefox) |
-| Edge | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [详细安装教程](#chrome--edge--opera) |
-| Opera | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [详细安装教程](#chrome--edge--opera) |
-| 其他 Chromium 内核浏览器 | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [详细安装教程](#chrome--edge--opera) |
+| 平台 | 状态 | 下载 | 详细安装教程 | 一键安装 |
+|------|------|------|------|------|
+| Chrome | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [详细安装教程](#chrome--edge--opera) | - |
+| Firefox | ✅ 已适配 | [下载](release/AIHelper-firefox.zip) | [详细安装教程](#firefox) | [![Firefox](https://img.shields.io/badge/Firefox-安装插件-FF7139?logo=firefox-browser&logoColor=white&style=for-the-badge)](https://addons.mozilla.org/firefox/addon/aihelper/) |
+| Edge | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [详细安装教程](#chrome--edge--opera) | - |
+| Opera | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [详细安装教程](#chrome--edge--opera) | - |
+| 其他 Chromium 内核浏览器 | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [详细安装教程](#chrome--edge--opera) | - |
 
 ## 例子
 
