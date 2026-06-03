@@ -2427,6 +2427,15 @@ async function startAgentLoop(userMessage, signal) {
         const msg = err.message;
         if (msg.includes('401') || msg.includes('403')) {
           errorMsg = t('chat.authError');
+        } else if (msg.includes('402')) {
+          errorMsg = t('chat.insufficientBalance');
+          showErrorBubble(errorMsg);
+          appendMessageBubble('assistant', t('chat.insufficientBalanceReminder'), true);
+          var msgs402 = getCurrentSessionMessages();
+          msgs402.push({ role: 'assistant', content: t('chat.insufficientBalanceReminder') });
+          saveCurrentMessages();
+          setSending(false);
+          return;
         } else if (msg.includes('404')) {
           errorMsg = t('chat.notFound');
         } else if (msg.includes('timeout')) {

@@ -117,6 +117,8 @@ window.__i18nMessages = {
       fileTooMany: '最多只能选择 5 个文件',
       tool_search_user_files: '搜索用户聊天提交文件',
       tool_get_user_file: '获取用户聊天提交文件',
+      insufficientBalance: '账户余额不足，API 请求被拒绝 (402)',
+      insufficientBalanceReminder: '您的账户余额已用尽，请前往模型服务商平台进行充值，充值后将自动恢复使用。',
     },
     skills: {
       emptyHint: '暂无可用的技能',
@@ -445,6 +447,8 @@ window.__i18nMessages = {
       fileTooMany: 'Maximum 5 files allowed',
       tool_search_user_files: 'Search User Submitted Files',
       tool_get_user_file: 'Get User Submitted File',
+      insufficientBalance: 'Insufficient account balance, API request rejected (402)',
+      insufficientBalanceReminder: 'Your account balance has been exhausted. Please top up on the model provider\'s platform to resume usage.',
     },
     skills: {
       emptyHint: 'No skills available',
