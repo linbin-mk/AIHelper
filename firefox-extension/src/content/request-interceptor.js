@@ -1,6 +1,9 @@
 (function () {
   'use strict';
 
+  // 飞书域名不拦截，避免干扰其安全机制
+  if (/(?:^|\.)feishu\.cn$/.test(location.hostname)) return;
+
   var BODY_SIZE_LIMIT = 100 * 1024;
 
   function getPath(url) {

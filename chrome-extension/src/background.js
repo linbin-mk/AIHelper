@@ -4,6 +4,17 @@ if (typeof browser === 'undefined') {
   globalThis.browser = chrome;
 }
 
+const EXCLUDED_HOSTS = ['feishu.cn'];
+
+function isExcludedUrl(url) {
+  try {
+    const host = new URL(url).hostname;
+    return EXCLUDED_HOSTS.some((h) => host === h || host.endsWith('.' + h));
+  } catch {
+    return false;
+  }
+}
+
 const TAB_BUFFER_MAX = 100;
 const tabRequestBuffers = new Map();
 
@@ -57,6 +68,7 @@ chrome.webRequest.onBeforeRequest.addListener(
   (details) => {
     if (details.tabId < 0) return;
     if (details.type !== 'xmlhttprequest' && details.type !== 'other') return;
+    if (isExcludedUrl(details.url)) return;
 
     addToBuffer(details.tabId, details.requestId, {
       method: details.method,
@@ -79,6 +91,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
   (details) => {
     if (details.tabId < 0) return;
     if (details.type !== 'xmlhttprequest' && details.type !== 'other') return;
+    if (isExcludedUrl(details.url)) return;
 
     const tabBuf = getOrCreateTabBuffer(details.tabId);
     const entry = tabBuf.buffer.get(details.requestId);
@@ -99,6 +112,7 @@ chrome.webRequest.onCompleted.addListener(
   (details) => {
     if (details.tabId < 0) return;
     if (details.type !== 'xmlhttprequest' && details.type !== 'other') return;
+    if (isExcludedUrl(details.url)) return;
 
     const tabBuf = getOrCreateTabBuffer(details.tabId);
     const entry = tabBuf.buffer.get(details.requestId);
@@ -568,7 +582,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 function injectInterceptor(tabId) {
   if (!tabId) return;
-  chrome.scripting.executeScript(
+  chrome.tabs.get(tabId, (tab) => {
+    if (chrome.runtime.lastError) return;
+    if (tab && tab.url && isExcludedUrl(tab.url)) return;
+    chrome.scripting.executeScript(
     {
       target: { tabId: tabId },
       files: ['src/content/request-interceptor.js'],
@@ -580,6 +597,7 @@ function injectInterceptor(tabId) {
       }
     }
   );
+  });
 }
 
 function handleInjectScript(tabId, filePath, param3, param4) {
