@@ -1,3 +1,5 @@
+[English](README_EN.md) | 中文
+
 # AI Helper · 小A
 
 <img src="chrome-extension/icons/mainicon.png" alt="小A" width="173" />
