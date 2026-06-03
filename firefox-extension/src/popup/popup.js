@@ -875,7 +875,11 @@ addHeaderBtn.addEventListener('click', () => {
 });
 
 closeBtn.addEventListener('click', () => {
-  window.close();
+  if (typeof browser !== 'undefined' && browser.sidebarAction) {
+    browser.sidebarAction.toggle();
+  } else {
+    window.close();
+  }
 });
 
 async function updateSidebarModelInfo() {
