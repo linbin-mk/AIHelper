@@ -75,7 +75,8 @@ Here are some things you can say to it:
 
 ### Skill System
 - Extensible skill framework; trigger skill panel with `/` slash command, supports real-time keyword filtering
-- **11 registered skills**, organized by category:
+- **User Custom Skills**: Create your own skills — fill in name, description, category and prompt to activate in conversations
+- **11 built-in skills**, organized by category:
 
 | Category | Skills |
 |----------|--------|
@@ -84,6 +85,7 @@ Here are some things you can say to it:
 | 💻 Development | Code Master, Frontend Copy Master, OpenSpec Explore / Propose / Apply / Archive |
 | 🎯 Business | Skill Recommender |
 
+- **Built-in & custom skills unified management**: built-in skills auto-merge on update; edited built-in skills preserved
 - Skill Favorites: create/edit/delete collections, add/remove skills, one-click switch skill combos
 - AI Smart Search: AI automatically recommends the best skill for the current task context
 
@@ -127,8 +129,8 @@ Here are some things you can say to it:
 ┌──────────────────────────────────────────────────────────────────┐
 │                    shared/ (Shared Business Logic)                │
 │  chat.js / config.js / knowledge.js / memory.js                  │
-│  session-manager.js / skill-registry.js / i18n.js                │
-│  agents-md-cache.js / output-files.js / favorites-manager.js     │
+│  session-manager.js / skill-registry.js / skill-storage.js       │
+│  skill-history.js / i18n.js / agents-md-cache.js                  │
 │  resource.js / css/panel.css / lib/marked.min.js                 │
 ├───────────────────────┬──────────────────────────────────────────┤
 │    chrome-extension/  │         firefox-extension/               │
@@ -181,7 +183,9 @@ AIHelper/
 │   ├── knowledge.js           # Knowledge base management (IndexedDB)
 │   ├── memory.js              # Memory management
 │   ├── session-manager.js     # Multi-session management
-│   ├── skill-registry.js      # Skill registration framework
+│   ├── skill-registry.js      # Skill registration framework (v2.0 unified storage + user skills)
+│   ├── skill-storage.js        # Skill persistence (ai_helper_skills)
+│   ├── skill-history.js        # Edit version history
 │   ├── i18n.js                # Internationalization (zh/en)
 │   ├── agents-md-cache.js     # AGENTS.md system prompt cache
 │   ├── output-files.js        # Artifact management
@@ -296,9 +300,10 @@ Switch to the "Settings" tab and fill in your API information:
 ### Skill Favorites
 
 1. Switch to the "Skills" tab, browse/search registered skills
-2. Click the favorite button to create a collection and add multiple skills
-3. Supports creating multiple collections for different scenarios
-4. The AI can automatically recommend skills based on conversation context
+2. Click the "+ Create Skill" button to create a custom skill (name + prompt content)
+3. Click the favorite button to create a collection and add multiple skills
+4. Supports creating multiple collections for different scenarios
+5. The AI can automatically recommend skills based on conversation context
 
 ### Artifacts
 

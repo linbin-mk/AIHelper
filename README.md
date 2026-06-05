@@ -77,7 +77,8 @@
 
 ### 技能系统
 - 可扩展的技能框架，通过 `/` 斜杠命令唤起技能面板，支持实时关键词筛选
-- 已注册 **11 个技能**，按分类组织：
+- **用户自定义技能**：创建个人专属技能，填写名称、描述、分类和提示词即可在对话中激活使用
+- 已注册 **11 个内置技能**，按分类组织：
 
 | 分类 | 技能 |
 |------|------|
@@ -86,6 +87,7 @@
 | 💻 Development | 代码大师、前端复制大师、OpenSpec Explore / Propose / Apply / Archive |
 | 🎯 业务 | 推荐技能 |
 
+- **内置与自定义技能统一管理**：内置技能更新时自动合并，已编辑的内置技能不会被新版覆盖
 - 技能收藏夹：创建/编辑/删除集合，添加/移除技能，一键切换组合技能
 - AI 智能搜索：AI 根据上下文自动推荐最适合当前任务的技能
 
@@ -129,8 +131,8 @@
 ┌──────────────────────────────────────────────────────────────────┐
 │                      shared/ (公共业务逻辑)                        │
 │  chat.js / config.js / knowledge.js / memory.js                  │
-│  session-manager.js / skill-registry.js / i18n.js                │
-│  agents-md-cache.js / output-files.js / favorites-manager.js     │
+│  session-manager.js / skill-registry.js / skill-storage.js       │
+│  skill-history.js / i18n.js / agents-md-cache.js                  │
 │  resource.js / css/panel.css / lib/marked.min.js                 │
 ├───────────────────────┬──────────────────────────────────────────┤
 │    chrome-extension/  │         firefox-extension/               │
@@ -181,7 +183,9 @@ AIHelper/
 │   ├── knowledge.js           # 知识库管理（IndexedDB）
 │   ├── memory.js              # 记忆管理
 │   ├── session-manager.js     # 多会话管理
-│   ├── skill-registry.js      # 技能注册框架
+│   ├── skill-registry.js      # 技能注册框架 (v2.0 统一存储 + 用户技能)
+│   ├── skill-storage.js        # 技能持久化 (ai_helper_skills)
+│   ├── skill-history.js        # 编辑版本历史
 │   ├── i18n.js                # 国际化（中/英文）
 │   ├── agents-md-cache.js     # AGENTS.md 系统提示词缓存
 │   ├── output-files.js        # 工作产物管理
@@ -296,9 +300,10 @@ AIHelper/
 ### 技能收藏夹
 
 1. 切换到「技能」Tab，浏览/搜索已注册技能
-2. 点击收藏按钮创建收藏夹，添加多个技能
-3. 支持创建多个收藏夹，为不同场景准备不同技能组合
-4. AI 可根据对话上下文自动推荐技能
+2. 点击「+ 创建技能」按钮创建自定义技能（名称 + 提示词内容即可）
+3. 点击收藏按钮创建收藏夹，添加多个技能
+4. 支持创建多个收藏夹，为不同场景准备不同技能组合
+5. AI 可根据对话上下文自动推荐技能
 
 ### 工作产物
 
