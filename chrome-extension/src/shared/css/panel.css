@@ -3417,6 +3417,17 @@ select.config-input {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
+.skill-row[data-skill-type="user"] {
+  background: linear-gradient(135deg, rgba(250, 179, 135, 0.12), rgba(245, 194, 231, 0.12));
+  border-color: rgba(250, 179, 135, 0.3);
+}
+
+.skill-row[data-skill-type="user"]:hover {
+  background: linear-gradient(135deg, rgba(250, 179, 135, 0.2), rgba(245, 194, 231, 0.2));
+  border-color: rgba(250, 179, 135, 0.5);
+  box-shadow: 0 1px 6px rgba(250, 179, 135, 0.15);
+}
+
 .skill-row-name {
   font-size: 13px;
   font-weight: 500;
@@ -3424,6 +3435,64 @@ select.config-input {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.skill-custom-badge {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--ctp-peach);
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.skills-create-bar {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 8px;
+}
+
+.skill-create-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: 1px dashed var(--ctp-surface2);
+  background: transparent;
+  color: var(--ctp-subtext0);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.skill-create-btn:hover {
+  border-color: var(--ctp-mauve);
+  color: var(--ctp-mauve);
+  background: rgba(203, 166, 247, 0.08);
+}
+
+.skill-create-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.skill-create-overlay.hidden {
+  display: none;
+}
+
+.skill-create-overlay .skill-detail-popup {
+  max-height: none;
+  overflow: visible;
+}
+
+.skill-create-overlay .skill-detail-edit-form {
+  overflow: visible;
+  max-height: none;
 }
 
 /* ===== Skill Detail Popup ===== */
@@ -3473,6 +3542,23 @@ select.config-input {
   font-size: 16px;
   font-weight: 600;
   color: var(--ctp-text);
+}
+
+.skill-custom-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ctp-peach);
+  background: linear-gradient(135deg, rgba(250, 179, 135, 0.18), rgba(245, 194, 231, 0.18));
+  border: 1px solid rgba(250, 179, 135, 0.35);
+  padding: 1px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.skill-custom-tag.hidden {
+  display: none;
 }
 
 .skill-detail-actions {

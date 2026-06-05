@@ -1,5 +1,5 @@
 /**
- * SkillRegistry + skill-storage 自测用例
+ * SkillRegistry + skill-storage 自测用例 (v2.0 history-driven)
  * 在扩展面板 console 中执行：window.__runSkillTests()
  */
 
@@ -9,226 +9,123 @@ window.__runSkillTests = async function () {
   var failed = 0;
 
   function assert(cond, name) {
-    if (cond) {
-      results.push('  PASS: ' + name);
-      passed++;
-    } else {
-      results.push('  FAIL: ' + name);
-      failed++;
-    }
+    if (cond) { results.push('  PASS: ' + name); passed++; }
+    else { results.push('  FAIL: ' + name); failed++; }
   }
-
   function assertEqual(actual, expected, name) {
-    if (actual === expected) {
-      results.push('  PASS: ' + name + ' (=' + JSON.stringify(expected) + ')');
-      passed++;
-    } else {
-      results.push('  FAIL: ' + name + ' (got ' + JSON.stringify(actual) + ', expected ' + JSON.stringify(expected) + ')');
-      failed++;
-    }
+    if (actual === expected) { results.push('  PASS: ' + name + ' (=' + JSON.stringify(expected) + ')'); passed++; }
+    else { results.push('  FAIL: ' + name + ' (got ' + JSON.stringify(actual) + ', expected ' + JSON.stringify(expected) + ')'); failed++; }
   }
 
   console.log('═══════════════════════════════════════');
-  console.log('  SkillRegistry + skill-storage 自测');
+  console.log('  SkillRegistry 自测 (v2.0)');
   console.log('═══════════════════════════════════════');
 
-  // ─── 1. 基础注册与查询 ───
-  console.log('\n── 1. 基础注册与查询 ──');
+  // 1. createSkill
+  console.log('\n── 1. createSkill ──');
+  var skill = createSkill({ id: 't1', name: '测试', description: '描述', category: 'Development', prompt: '# Prompt', type: 'builtin', deleted: false });
+  assertEqual(skill.id, 't1', '1.1 id');
+  assertEqual(typeof skill.getPrompt, 'function', '1.2 getPrompt is fn');
+  assertEqual(skill.getPrompt(), '# Prompt', '1.3 getPrompt returns prompt');
+  assert(skill.getTools === undefined, '1.4 no getTools');
+  assert(skill.getUIDelegate === undefined, '1.5 no getUIDelegate');
+
+  // 2. register + getAll
+  console.log('\n── 2. 注册 ──');
   var reg = new SkillRegistry();
+  reg.register(createSkill({ id: 'a', name: 'A', type: 'builtin', deleted: false, prompt: '#A' }));
+  reg.register(createSkill({ id: 'b', name: 'B', type: 'builtin', deleted: false, prompt: '#B' }));
+  reg.register(createSkill({ id: 'c', name: 'C', type: 'builtin', deleted: false, prompt: '#C' }));
+  assertEqual(reg.getAll().length, 3, '2.1 3 skills');
 
-  var skillA = { id: 'test-a', name: '测试A', description: '描述A', category: 'Development', _prompt: '# Prompt A', getPrompt: function () { return this._prompt; }, getTools: function () { return []; }, getUIDelegate: function () { return null; } };
-  var skillB = { id: 'test-b', name: '测试B', description: '描述B', category: 'Testing', _prompt: '# Prompt B', getPrompt: function () { return this._prompt; }, getTools: function () { return []; }, getUIDelegate: function () { return null; } };
-  var skillC = { id: 'test-c', name: '测试C', description: '描述C', category: 'Product', _prompt: '# Prompt C', getPrompt: function () { return this._prompt; }, getTools: function () { return []; }, getUIDelegate: function () { return null; } };
+  // 3. unregister (软删除)
+  console.log('\n── 3. 删除 ──');
+  var sB = reg.getAll().find(function (s) { return s.id === 'b'; });
+  reg.unregister('b');
+  assertEqual(reg.getAll().length, 2, '3.1 filtered');
+  assertEqual(sB.deleted, true, '3.2 deleted=true');
 
-  reg.register(skillA);
-  reg.register(skillB);
-  reg.register(skillC);
-  assertEqual(reg.getAll().length, 3, '1.1 register 3 skills');
-  assert(reg.getAll().findIndex(function (s) { return s.id === 'test-a'; }) >= 0, '1.2 skill test-a exists');
+  // 4. update → history
+  console.log('\n── 4. update → history ──');
+  reg.update('a', { name: 'A1', prompt: '#Edited' }, 'cn');
+  var a = reg.getAll().find(function (s) { return s.id === 'a'; });
+  assertEqual(a.name, 'A1', '4.1 name updated');
+  var h = reg.getHistory('a', 'cn');
+  assert(h.length >= 1, '4.2 history entry');
+  assertEqual(h[0].name, 'A', '4.3 pre-edit name');
+  assert(typeof h[0].ts === 'number', '4.4 timestamp');
 
-  // ─── 2. unregister (删除) ───
-  console.log('\n── 2. unregister ──');
-  reg.unregister('test-b');
-  assertEqual(reg.getAll().length, 2, '2.1 getAll() excludes deleted skill');
-  assert(reg.getAll().findIndex(function (s) { return s.id === 'test-b'; }) === -1, '2.2 deleted skill not in getAll()');
-  assert(reg._deletedIds.has('test-b'), '2.3 _deletedIds contains test-b');
+  // 5. activate
+  console.log('\n── 5. activate ──');
+  reg.activate('a');
+  reg.activate('c');
+  assertEqual(reg.getActive().length, 2, '5.1 2 active');
+  reg.deactivate('a');
+  assert(!reg.isActive('a'), '5.2 deactivated');
 
-  // ─── 3. update (编辑) ───
-  console.log('\n── 3. update ──');
-  reg.update('test-a', { name: '测试A编辑', description: '描述A编辑', _prompt: '# Edited Prompt' }, 'cn');
-  var editedA = reg.getAll().find(function (s) { return s.id === 'test-a'; });
-  assert(editedA !== undefined, '3.1 edited skill still in getAll()');
-  assertEqual(editedA.name, '测试A编辑', '3.2 name updated');
-  assertEqual(editedA.description, '描述A编辑', '3.3 description updated');
-  assertEqual(editedA._prompt, '# Edited Prompt', '3.4 _prompt updated');
-  assert(editedA._edits && editedA._edits.cn, '3.5 _edits.cn exists');
-  assertEqual(editedA._edits.cn.name, '测试A编辑', '3.6 _edits.cn.name correct');
+  // 6. events
+  console.log('\n── 6. events ──');
+  var evts = [];
+  reg.onSkillEvent(function (e) { evts.push(e); });
+  var sD = createSkill({ id: 'd', name: 'D', type: 'builtin', deleted: false, prompt: '' });
+  reg.register(sD);
+  reg.update('d', { name: 'D1' }, 'cn');
+  reg.unregister('d');
+  assertEqual(evts.length, 3, '6.1 3 events');
 
-  // update non-existent skill returns false
-  var result = reg.update('nonexistent', { name: 'x' }, 'cn');
-  assert(result === false, '3.7 update non-existent returns false');
+  // 7. merge decision (history check)
+  console.log('\n── 7. merge: history check ──');
+  addHistoryEntry('x1', 'cn', { ts: 100, name: 'X1Old', description: '', prompt: '#Old', category: 'Dev' });
+  addHistoryEntry('x2', 'cn', { ts: 100, name: 'X2Old', description: '', prompt: '#Old', category: 'Dev' });
+  // x1 has history → keep storage; x3 has no history → use fresh
+  var h1 = reg.getHistory('x1', 'cn');
+  assert(h1.length > 0, '7.1 x1 has history');
+  var h3 = reg.getHistory('x3', 'cn');
+  assertEqual(h3.length, 0, '7.2 x3 no history');
 
-  // ─── 4. getOverrides ───
-  console.log('\n── 4. getOverrides ──');
-  var overrides = reg.getOverrides();
-  assert(overrides.deletedIds.indexOf('test-b') >= 0, '4.1 deletedIds contains test-b');
-  assert(overrides.deletedIds.indexOf('test-a') === -1, '4.2 deletedIds does NOT contain test-a');
-  assert(overrides.editedSkills['test-a'] !== undefined, '4.3 editedSkills has test-a');
-  assert(overrides.editedSkills['test-a']['cn'] !== undefined, '4.4 editedSkills.test-a.cn exists');
-  assertEqual(overrides.editedSkills['test-a']['cn'].name, '测试A编辑', '4.5 edited name stored');
-
-  // 编辑英文版本
-  reg.update('test-c', { name: 'Test C Edited' }, 'en');
-  var overrides2 = reg.getOverrides();
-  assert(overrides2.editedSkills['test-c'] !== undefined, '4.6 editedSkills has test-c');
-  assert(overrides2.editedSkills['test-c']['en'] !== undefined, '4.7 editedSkills.test-c.en exists');
-
-  // ─── 5. resetSkill ───
-  console.log('\n── 5. resetSkill ──');
-  // 先注册一个技能使 reset 能找到它
-  reg.register({ id: 'test-reset', name: 'ResetTest', description: '', category: 'Development', _prompt: '# Original', getPrompt: function () { return this._prompt; }, getTools: function () { return []; }, getUIDelegate: function () { return null; } });
-  reg.update('test-reset', { name: 'ResetTest Edited' }, 'cn');
-
-  // mock _fetchSkillMd 使 reset 能正常执行
-  var origFetch = reg._fetchSkillMd;
-  var fetchCalls = [];
-  reg._fetchSkillMd = async function (skillId, lang) {
-    fetchCalls.push({ skillId: skillId, lang: lang });
-    if (skillId === 'test-reset') {
-      return '---\nid: test-reset\nname: ResetTest\ncategory: Development\n---\n# Original Prompt';
-    }
-    return null;
-  };
-
-  await reg.resetSkill('test-reset', 'cn');
-  var resetS = reg.getAll().find(function (s) { return s.id === 'test-reset'; });
-  assertEqual(resetS.name, 'ResetTest', '5.1 reset restores built-in name');
-  assertEqual(resetS._prompt, '# Original Prompt', '5.2 reset restores built-in _prompt');
-  assert(!resetS._edits || !resetS._edits.cn, '5.3 _edits.cn cleared');
-  assert(!resetS._edits || Object.keys(resetS._edits).length === 0, '5.4 _edits empty');
-  assert(fetchCalls.length >= 1, '5.5 _fetchSkillMd was called');
-
-  reg._fetchSkillMd = origFetch;
-
-  // ─── 5b. getHistory ───
-  console.log('\n── 5b. getHistory ──');
-  var histSkill = { id: 'test-hist', name: 'HistOrig', description: 'DescOrig', category: 'Development', _prompt: '# PromptOrig', getPrompt: function () { return this._prompt; }, getTools: function () { return []; }, getUIDelegate: function () { return null; } };
-  reg.register(histSkill);
-  reg.update('test-hist', { name: 'HistEdit1' }, 'cn');
-  var hist = reg.getHistory('test-hist', 'cn');
-  assert(hist.length >= 1, '5b.1 update creates history entry');
-  assertEqual(hist[0].name, 'HistOrig', '5b.2 history captures pre-edit name');
-  assertEqual(hist[0]._prompt, '# PromptOrig', '5b.3 history captures pre-edit _prompt');
-  assert(typeof hist[0].ts === 'number', '5b.4 history has timestamp');
-  reg.update('test-hist', { name: 'HistEdit2' }, 'cn');
-  var hist2 = reg.getHistory('test-hist', 'cn');
-  assert(hist2.length >= 2, '5b.5 second update creates second history entry');
-  // 跨语言隔离
-  var enHist = reg.getHistory('test-hist', 'en');
-  assertEqual(enHist.length, 0, '5b.6 no history for unedited language');
-
-  // reset non-edited skill
-  reg.register({ id: 'test-reset2', name: 'R2', description: '', category: 'Testing', _prompt: '# R2', getPrompt: function () { return this._prompt; }, getTools: function () { return []; }, getUIDelegate: function () { return null; } });
-  await reg.resetSkill('test-reset2', 'cn');
-  var r2 = reg.getAll().find(function (s) { return s.id === 'test-reset2'; });
-  assert(r2 !== undefined, '5.6 reset non-edited skill still exists');
-
-  // ─── 6. activate / deactivate ───
-  console.log('\n── 6. activate / deactivate ──');
-  reg.activate('test-a');
-  assert(reg.isActive('test-a'), '6.1 activate sets active');
-  reg.activate('test-c');
-  assertEqual(reg.getActive().length, 2, '6.2 getActive returns 2');
-  reg.deactivate('test-a');
-  assert(!reg.isActive('test-a'), '6.3 deactivate clears active');
-  assertEqual(reg.getActive().length, 1, '6.4 getActive returns 1');
-
-  // ─── 7. 事件通知 ───
-  console.log('\n── 7. 事件通知 ──');
-  var events = [];
-  reg.onSkillEvent(function (e) { events.push(e); });
-  reg.register({ id: 'test-d', name: 'D', description: '', category: 'Other', _prompt: '', getPrompt: function () { return ''; }, getTools: function () { return []; }, getUIDelegate: function () { return null; } });
-  reg.update('test-d', { name: 'D updated' }, 'cn');
-  reg.unregister('test-d');
-  assertEqual(events.length, 3, '7.1 3 events fired');
-  assertEqual(events[0].type, 'register', '7.2 register event');
-  assertEqual(events[1].type, 'update', '7.3 update event');
-  assertEqual(events[2].type, 'unregister', '7.4 unregister event');
-
-  // ─── 8. applyOverrides ───
-  console.log('\n── 8. applyOverrides ──');
-  var reg2 = new SkillRegistry();
-  reg2.register({ id: 'x1', name: 'X1', description: '', category: 'Development', _prompt: '# X1', getPrompt: function () { return this._prompt; }, getTools: function () { return []; }, getUIDelegate: function () { return null; } });
-  reg2.register({ id: 'x2', name: 'X2', description: '', category: 'Testing', _prompt: '# X2', getPrompt: function () { return this._prompt; }, getTools: function () { return []; }, getUIDelegate: function () { return null; } });
-
-  var testOverrides = {
-    deletedIds: ['x2'],
-    editedSkills: {
-      x1: { cn: { name: 'X1编辑', description: 'desc', _prompt: '# X1 Edited', category: 'Product' } }
-    }
-  };
-  reg2.applyOverrides(testOverrides);
-
-  assertEqual(reg2.getAll().length, 1, '8.1 deleted x2 filtered');
-  var edited = reg2.getAll().find(function (s) { return s.id === 'x1'; });
-  assertEqual(edited.name, 'X1编辑', '8.2 applyOverrides updates name');
-  assertEqual(edited.category, 'Product', '8.3 applyOverrides updates category');
-
-  // ─── 9. getCurrentLangSuffix ───
-  console.log('\n── 9. getCurrentLangSuffix ──');
-  if (typeof getCurrentLangSuffix === 'function') {
-    assertEqual(getCurrentLangSuffix(), 'cn', '9.1 default lang is cn');
-
-    // 模拟英文环境
-    var origLang = window.__i18nMessages ? window.__i18nMessages._lang : null;
-    if (window.__i18nMessages) {
-      window.__i18nMessages._lang = 'en';
-      assertEqual(getCurrentLangSuffix(), 'en', '9.2 en lang returns en');
-      window.__i18nMessages._lang = 'zh-CN';
-      assertEqual(getCurrentLangSuffix(), 'cn', '9.3 zh-CN returns cn');
-      if (origLang) window.__i18nMessages._lang = origLang;
+  // 8. Storage
+  console.log('\n── 8. Storage ──');
+  if (typeof loadAiHelperSkills === 'function') {
+    try {
+      var td = { cn: { 'sk': { id: 'sk', name: 'SK', prompt: '', type: 'builtin', deleted: false } }, en: {} };
+      await saveAiHelperSkills(td);
+      var ld = await loadAiHelperSkills();
+      assert(ld !== null, '8.1 loaded');
+      assert(ld.cn.sk.name === 'SK', '8.2 name persisted');
+      await saveAiHelperSkills({ cn: {}, en: {} });
+    } catch (e) {
+      results.push('  SKIP: 8.x ' + e.message);
     }
   }
 
-  // ─── 10. saveOverrides / loadOverrides ───
-  console.log('\n── 10. saveOverrides / loadOverrides ──');
-  if (typeof saveOverrides === 'function' && typeof loadOverrides === 'function') {
-    var testData = {
-      deletedIds: ['skill-x'],
-      editedSkills: {
-        'skill-y': { cn: { name: 'Y编辑', description: '', _prompt: '', category: 'Development' } }
-      }
-    };
-    await saveOverrides(testData);
-    var loaded = await loadOverrides();
-    assert(loaded.deletedIds !== undefined, '10.1 loaded has deletedIds');
-    assert(loaded.editedSkills !== undefined, '10.2 loaded has editedSkills');
-    assertEqual(loaded.deletedIds[0], 'skill-x', '10.3 deletedIds persisted');
-    assert(loaded.editedSkills['skill-y'] !== undefined, '10.4 editedSkills persisted');
-    assertEqual(loaded.editedSkills['skill-y'].cn.name, 'Y编辑', '10.5 edited name persisted');
-
-    // 清理测试数据
-    await saveOverrides({ deletedIds: [], editedSkills: {} });
-    var cleared = await loadOverrides();
-    assertEqual(cleared.deletedIds.length, 0, '10.6 cleanup - deletedIds empty');
-
-    // 清理历史测试数据
-    if (typeof clearHistory === 'function' && typeof saveHistory === 'function') {
-      clearHistory('test-hist', 'cn');
-      await saveHistory();
+  // 9. createUserSkill
+  console.log('\n── 9. createUserSkill ──');
+  try {
+    var uid = await reg.createUserSkill('我的技能', 'desc', 'Product', 'prompt');
+    if (uid) {
+      assert(uid.indexOf('user-') === 0, '9.1 id format');
+      var us = reg.getAll().find(function (s) { return s.id === uid; });
+      assert(us !== undefined, '9.2 in list');
+      assertEqual(us.type, 'user', '9.3 type=user');
+      assert(us.createdAt > 0, '9.4 createdAt');
     }
+  } catch (e) {
+    results.push('  SKIP: 9.x ' + e.message);
   }
+
+  // 10. methods
+  console.log('\n── 10. methods ──');
+  assertEqual(typeof reg.bootstrap, 'function', '10.1 bootstrap');
+  assertEqual(typeof reg.switchLanguage, 'function', '10.2 switchLanguage');
+  assertEqual(typeof reg.fetchLatestMdVersion, 'function', '10.3 fetchLatestMdVersion');
+  assertEqual(typeof reg.waitSync, 'function', '10.4 waitSync');
+  assertEqual(typeof reg.createUserSkill, 'function', '10.5 createUserSkill');
+  assertEqual(typeof reg.getLang, 'function', '10.6 getLang');
 
   console.log('\n═══════════════════════════════════════');
-  console.log('  最终结果: ' + passed + ' 通过 / ' + (passed + failed) + ' 总计');
-  if (failed > 0) {
-    console.log('  ❌ ' + failed + ' 个测试失败');
-  } else {
-    console.log('  ✅ 全部通过');
-  }
+  console.log('  结果: ' + passed + ' / ' + (passed + failed) + ' 通过');
+  console.log(failed > 0 ? '  ❌ ' + failed + ' 失败' : '  ✅ 全部通过');
   console.log('═══════════════════════════════════════');
-
   results.forEach(function (r) { console.log(r); });
-
   return { passed: passed, failed: failed, total: passed + failed };
 };

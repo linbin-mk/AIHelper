@@ -126,10 +126,43 @@
         <div class="skills-categories" id="skillsCategories">
           <div class="empty-hint">技能加载中...</div>
         </div>
+        <div class="skills-create-bar">
+          <button class="skill-create-btn" id="skillCreateBtn" data-i18n="skills.createBtn">+ 创建技能</button>
+        </div>
+        <!-- 创建技能表单弹窗 -->
+        <div class="skill-create-overlay hidden" id="skillCreateOverlay">
+          <div class="skill-detail-popup">
+            <div class="skill-detail-header">
+              <span class="skill-detail-title" data-i18n="skills.createTitle">创建技能</span>
+              <button class="skill-detail-close-btn" id="skillCreateCloseBtn">&times;</button>
+            </div>
+            <div class="skill-detail-edit-form" id="skillCreateForm">
+              <label class="skill-edit-label" data-i18n="skills.editName">名称</label>
+              <input type="text" class="skill-edit-input" id="skillCreateName" placeholder="输入技能名称">
+              <label class="skill-edit-label" data-i18n="skills.editDescription">描述</label>
+              <textarea class="skill-edit-textarea skill-edit-textarea--desc" id="skillCreateDesc" placeholder="简短的技能描述"></textarea>
+              <label class="skill-edit-label" data-i18n="skills.editCategory">分类</label>
+              <select class="skill-edit-input" id="skillCreateCategory">
+                <option value="Development">开发</option>
+                <option value="Testing">测试</option>
+                <option value="Product">产品</option>
+                <option value="Business">业务</option>
+                <option value="Other">其他</option>
+              </select>
+              <label class="skill-edit-label" data-i18n="skills.editPrompt">提示内容</label>
+              <textarea class="skill-edit-textarea skill-edit-textarea--prompt" id="skillCreatePrompt" placeholder="输入提示词内容，AI 将根据这些指令来执行任务"></textarea>
+              <div class="skill-edit-actions">
+                <button class="skill-edit-save-btn" id="skillCreateSaveBtn" data-i18n="skills.editSave">保存</button>
+                <button class="skill-edit-cancel-btn" id="skillCreateCancelBtn" data-i18n="skills.editCancel">取消</button>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="skill-detail-overlay hidden" id="skillDetailOverlay">
           <div class="skill-detail-popup">
             <div class="skill-detail-header">
               <div class="skill-detail-header-left">
+                <span class="skill-custom-tag hidden" id="skillDetailCustomTag" data-i18n="skills.customBadge">用户创建</span>
                 <span class="skill-detail-title" id="skillDetailTitle"></span>
                 <button class="skill-detail-reset-btn hidden" id="skillDetailResetBtn" data-i18n="skills.resetBtn">版本历史</button>
               </div>

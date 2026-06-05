@@ -2678,22 +2678,6 @@ async function startAgentLoop(userMessage, signal) {
 }
 
 async function executeToolCall(name, argsStr) {
-  var registry = window.__getSkillRegistry();
-  var all = registry.getAll();
-  for (var i = 0; i < all.length; i++) {
-    var tools = all[i].getTools();
-    for (var j = 0; j < tools.length; j++) {
-      var t = tools[j];
-      if (t.function && t.function.name === name && t.handler) {
-        try {
-          return await t.handler(argsStr);
-        } catch (err) {
-          return JSON.stringify({ error: t('chat.toolError'), message: (err.message || t('common.unknownError')) });
-        }
-      }
-    }
-  }
-
   if (name === 'activate_skill') {
     try {
       const args = typeof argsStr === 'string' ? JSON.parse(argsStr) : argsStr;
@@ -3663,19 +3647,6 @@ function buildMergedTools() {
       merged.push({ type: 'function', function: t.function });
     }
   });
-
-  var registry = window.__getSkillRegistry();
-  var all = registry.getAll();
-  for (var i = 0; i < all.length; i++) {
-    var tools = all[i].getTools();
-    for (var j = 0; j < tools.length; j++) {
-      var t = tools[j];
-      if (t.function && !seen.has(t.function.name)) {
-        seen.add(t.function.name);
-        merged.push({ type: 'function', function: t.function });
-      }
-    }
-  }
 
   return merged;
 }
