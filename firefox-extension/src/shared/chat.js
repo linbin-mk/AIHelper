@@ -581,6 +581,55 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'create_skill',
+      description: '创建新的用户自定义技能。创建前应先通过 ask_user 与用户确认技能信息（名称、描述、分类、提示词）。技能创建后会自动出现在技能列表中',
+      parameters: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', description: '技能名称，3-20字，简洁有力' },
+          description: { type: 'string', description: '一句话描述技能用途，让人知道什么时候该用它' },
+          category: { type: 'string', description: '分类：Development / Testing / Product / Business / Other' },
+          prompt: { type: 'string', description: '完整的角色设定和任务指令文本。使用第二人称，包含明确的步骤指引和输入/输出规范' }
+        },
+        required: ['name', 'description', 'category', 'prompt']
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'update_skill',
+      description: '编辑已有的技能。支持部分字段更新，只传需要修改的字段即可。可用于修改技能的名称、描述、分类或提示词',
+      parameters: {
+        type: 'object',
+        properties: {
+          skillId: { type: 'string', description: '要编辑的技能ID' },
+          name: { type: 'string', description: '新名称（可选，不传则不修改）' },
+          description: { type: 'string', description: '新描述（可选）' },
+          category: { type: 'string', description: '新分类（可选）' },
+          prompt: { type: 'string', description: '新提示词（可选）' }
+        },
+        required: ['skillId']
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'delete_skill',
+      description: '删除指定的用户自定义技能（软删除）。内置技能（type为builtin）不可删除。删除后技能将从列表中消失，但可以通过恢复操作找回',
+      parameters: {
+        type: 'object',
+        properties: {
+          skillId: { type: 'string', description: '要删除的技能ID' }
+        },
+        required: ['skillId']
+      },
+    },
+  },
 ];
 const MAX_TOOL_ROUNDS_DEFAULT = 5000;
 const REQUEST_TIMEOUT_MS = 120000;
@@ -3205,6 +3254,56 @@ async function executeToolCall(name, argsStr) {
       return JSON.stringify(result);
     } catch (err) {
       return JSON.stringify({ error: '移除技能失败: ' + (err.message || '') });
+    }
+  }
+
+  if (name === 'create_skill') {
+    try {
+      const args = typeof argsStr === 'string' ? JSON.parse(argsStr) : argsStr;
+      if (!args.name || !args.prompt) {
+        return JSON.stringify({ success: false, error: 'name 和 prompt 为必填字段' });
+      }
+      var registry = window.__getSkillRegistry();
+      var newSkill = await registry.createUserSkill(args.name, args.description || '', args.category || 'Other', args.prompt);
+      return JSON.stringify({ success: true, skillId: newSkill.id, name: newSkill.name, message: '技能已创建: ' + newSkill.name });
+    } catch (err) {
+      return JSON.stringify({ success: false, error: '创建技能失败: ' + (err.message || '') });
+    }
+  }
+
+  if (name === 'update_skill') {
+    try {
+      const args = typeof argsStr === 'string' ? JSON.parse(argsStr) : argsStr;
+      if (!args.skillId) {
+        return JSON.stringify({ success: false, error: 'skillId 为必填字段' });
+      }
+      var registry = window.__getSkillRegistry();
+      var updated = registry.update(args.skillId, args);
+      if (updated) {
+        return JSON.stringify({ success: true, skillId: args.skillId, message: '技能已更新: ' + args.skillId });
+      } else {
+        return JSON.stringify({ success: false, error: '未找到指定技能: ' + args.skillId });
+      }
+    } catch (err) {
+      return JSON.stringify({ success: false, error: '更新技能失败: ' + (err.message || '') });
+    }
+  }
+
+  if (name === 'delete_skill') {
+    try {
+      const args = typeof argsStr === 'string' ? JSON.parse(argsStr) : argsStr;
+      if (!args.skillId) {
+        return JSON.stringify({ success: false, error: 'skillId 为必填字段' });
+      }
+      var registry = window.__getSkillRegistry();
+      var skill = registry.getAll().find(function (s) { return s.id === args.skillId; });
+      if (skill && skill.type === 'builtin') {
+        return JSON.stringify({ success: false, error: '内置技能不可删除' });
+      }
+      registry.unregister(args.skillId);
+      return JSON.stringify({ success: true, skillId: args.skillId, message: '技能已删除: ' + args.skillId });
+    } catch (err) {
+      return JSON.stringify({ success: false, error: '删除技能失败: ' + (err.message || '') });
     }
   }
 

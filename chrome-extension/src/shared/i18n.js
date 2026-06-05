@@ -169,6 +169,16 @@ window.__i18nMessages = {
       search: 'AI搜索',
       checking: '检测中...',
     },
+    aiImport: {
+      btn: '🤖 AI导入',
+      title: 'AI 导入技能',
+      selectFiles: '选择文本文件（最多5个）',
+      confirm: '确认导入',
+      cancel: '取消',
+      maxFiles: '最多选择5个文件',
+      noFiles: '请先选择文件',
+      sending: '当前存在进行中的会话，请等待完成',
+    },
     monitor: {
       currentTarget: '📍 当前目标:',
       capturedRequests: '🔍 捕获到的请求:',
@@ -501,9 +511,19 @@ window.__i18nMessages = {
       defaultDescription: 'Description',
     },
     smartSearch: {
-      placeholder: 'Describe your scenario',
+      placeholder: 'Describe your needs...',
       search: 'AI Search',
       checking: 'Checking...',
+    },
+    aiImport: {
+      btn: '🤖 AI Import',
+      title: 'AI Import Skills',
+      selectFiles: 'Select text files (max 5)',
+      confirm: 'Confirm Import',
+      cancel: 'Cancel',
+      maxFiles: 'Maximum 5 files',
+      noFiles: 'Please select files first',
+      sending: 'An active session exists, please wait',
     },
     monitor: {
       currentTarget: '📍 Current Target:',

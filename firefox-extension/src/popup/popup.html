@@ -128,6 +128,29 @@
         </div>
         <div class="skills-create-bar">
           <button class="skill-create-btn" id="skillCreateBtn" data-i18n="skills.createBtn">+ 创建技能</button>
+          <button class="skill-create-btn ai-import-btn" id="aiImportBtn" data-i18n="aiImport.btn">🤖 AI导入</button>
+        </div>
+        <!-- AI导入文件选择面板 -->
+        <div class="ai-import-overlay hidden" id="aiImportOverlay">
+          <div class="ai-import-panel">
+            <div class="ai-import-header">
+              <span class="ai-import-title" data-i18n="aiImport.title">AI 导入技能</span>
+              <button class="ai-import-close-btn" id="aiImportCloseBtn">&times;</button>
+            </div>
+            <div class="ai-import-body">
+              <div class="ai-import-file-area" id="aiImportFileArea">
+                <div class="ai-import-drop-zone" id="aiImportDropZone">
+                  <button class="ai-import-select-btn" id="aiImportSelectBtn" data-i18n="aiImport.selectFiles">选择文本文件（最多5个）</button>
+                  <input type="file" id="aiImportFileInput" multiple accept=".txt,.log,.json,.xml,.csv,.md,.yml,.yaml,.js,.ts,.jsx,.tsx,.py,.java,.html,.css,.sql,.sh,.bash,.env,.cfg,.ini,.conf,.toml" style="display:none">
+                </div>
+                <div class="ai-import-file-list hidden" id="aiImportFileList"></div>
+              </div>
+            </div>
+            <div class="ai-import-actions">
+              <button class="ai-import-cancel-btn" id="aiImportCancelBtn" data-i18n="aiImport.cancel">取消</button>
+              <button class="ai-import-confirm-btn" id="aiImportConfirmBtn" data-i18n="aiImport.confirm" disabled>确认导入</button>
+            </div>
+          </div>
         </div>
         <!-- 创建技能表单弹窗 -->
         <div class="skill-create-overlay hidden" id="skillCreateOverlay">

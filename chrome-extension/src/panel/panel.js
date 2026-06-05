@@ -2602,6 +2602,203 @@ if (languageSelectEl) {
   });
 }
 
+// ────────── AI导入技能 ──────────
+
+var MAX_AI_IMPORT_FILE_COUNT = 5;
+
+function showAiImportPanel() {
+  window._aiImportFiles = [];
+  var overlay = document.getElementById('aiImportOverlay');
+  if (!overlay) return;
+  renderAiImportFileList();
+  var confirmBtn = document.getElementById('aiImportConfirmBtn');
+  if (confirmBtn) confirmBtn.disabled = true;
+  overlay.classList.remove('hidden');
+}
+
+function hideAiImportPanel() {
+  var overlay = document.getElementById('aiImportOverlay');
+  if (overlay) overlay.classList.add('hidden');
+  window._aiImportFiles = [];
+}
+
+function renderAiImportFileList() {
+  var listEl = document.getElementById('aiImportFileList');
+  var confirmBtn = document.getElementById('aiImportConfirmBtn');
+  if (!listEl) return;
+
+  var files = window._aiImportFiles || [];
+
+  if (files.length === 0) {
+    listEl.innerHTML = '';
+    listEl.classList.add('hidden');
+    if (confirmBtn) confirmBtn.disabled = true;
+    return;
+  }
+
+  listEl.classList.remove('hidden');
+  if (confirmBtn) confirmBtn.disabled = false;
+
+  listEl.innerHTML = '';
+  for (var i = 0; i < files.length; i++) {
+    (function (idx) {
+      var file = files[idx];
+      var item = document.createElement('div');
+      item.className = 'ai-import-file-item';
+
+      var icon = document.createElement('span');
+      icon.className = 'ai-import-file-icon';
+      icon.textContent = '📄';
+
+      var info = document.createElement('div');
+      info.className = 'ai-import-file-info';
+
+      var nameEl = document.createElement('div');
+      nameEl.className = 'ai-import-file-name';
+      nameEl.textContent = file.name;
+      nameEl.title = file.name;
+
+      var sizeEl = document.createElement('div');
+      sizeEl.className = 'ai-import-file-size';
+      sizeEl.textContent = typeof formatFileSize === 'function' ? formatFileSize(file.size) : (file.size + ' B');
+
+      info.appendChild(nameEl);
+      info.appendChild(sizeEl);
+
+      var removeBtn = document.createElement('button');
+      removeBtn.className = 'ai-import-file-remove';
+      removeBtn.innerHTML = '&times;';
+      removeBtn.title = t('common.remove') || '移除';
+      removeBtn.addEventListener('click', function () {
+        removeAiImportFile(idx);
+      });
+
+      item.appendChild(icon);
+      item.appendChild(info);
+      item.appendChild(removeBtn);
+      listEl.appendChild(item);
+    })(i);
+  }
+}
+
+function removeAiImportFile(index) {
+  if (!window._aiImportFiles) return;
+  window._aiImportFiles.splice(index, 1);
+  renderAiImportFileList();
+}
+
+function handleAiImportFileSelect(event) {
+  var files = event.target.files;
+  if (!files || files.length === 0) return;
+
+  if (!window._aiImportFiles) window._aiImportFiles = [];
+
+  var currentCount = window._aiImportFiles.length;
+
+  if (currentCount + files.length > MAX_AI_IMPORT_FILE_COUNT) {
+    showToast(t('aiImport.maxFiles') || '最多选择5个文件');
+    event.target.value = '';
+    return;
+  }
+
+  var loadedCount = 0;
+  var totalCount = files.length;
+
+  for (var i = 0; i < files.length; i++) {
+    (function (file) {
+      if (typeof isFileTypeAllowed === 'function' && !isFileTypeAllowed(file)) {
+        showToast(t('chat.fileUnsupportedType') + ': ' + file.name);
+        loadedCount++;
+        checkAllLoaded();
+        return;
+      }
+
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var dupFound = false;
+        for (var j = 0; j < window._aiImportFiles.length; j++) {
+          if (window._aiImportFiles[j].name === file.name) {
+            dupFound = true;
+            break;
+          }
+        }
+        if (!dupFound) {
+          window._aiImportFiles.push({
+            name: file.name,
+            size: file.size,
+            content: e.target.result
+          });
+        }
+        loadedCount++;
+        checkAllLoaded();
+      };
+      reader.onerror = function () {
+        loadedCount++;
+        checkAllLoaded();
+      };
+      reader.readAsText(file);
+    })(files[i]);
+  }
+
+  function checkAllLoaded() {
+    if (loadedCount >= totalCount) {
+      renderAiImportFileList();
+    }
+  }
+
+  event.target.value = '';
+}
+
+async function triggerAiImport() {
+  if (!window._aiImportFiles || window._aiImportFiles.length === 0) {
+    showToast(t('aiImport.noFiles') || '请先选择文件');
+    return;
+  }
+
+  if (typeof _isSending !== 'undefined' && _isSending) {
+    showToast(t('aiImport.sending') || '当前存在进行中的会话，请等待完成');
+    return;
+  }
+
+  var files = window._aiImportFiles.slice();
+  hideAiImportPanel();
+  window._aiImportFiles = [];
+
+  if (window.currentSessionId) {
+    window.currentSessionId = null;
+    window.currentSessionMessages = [];
+    window.chatMessages = [];
+    if (typeof SessionManager !== 'undefined') {
+      SessionManager.setActiveSessionId(null);
+    }
+  }
+
+  if (!window.pendingFiles) window.pendingFiles = [];
+  window.pendingFiles.length = 0;
+  for (var i = 0; i < files.length; i++) {
+    window.pendingFiles.push({
+      name: files[i].name,
+      size: files[i].size,
+      content: files[i].content
+    });
+  }
+
+  var fileNames = files.map(function (f) { return f.name; }).join('、');
+  var message = '用户通过「AI导入」提交了文件：' + fileNames + '。请使用 get_user_file 读取每个文件的完整内容，分析后创建合适的技能定义，并通过 ask_user 与我确认。';
+
+  switchTab('chat');
+
+  if (typeof activateSkill === 'function') {
+    activateSkill('smart-skill-create');
+  }
+
+  var chatInput = document.getElementById('chatInput');
+  if (chatInput && typeof sendChatMessage === 'function') {
+    chatInput.value = message;
+    sendChatMessage();
+  }
+}
+
 // ────────── 创建技能事件 ──────────
 
 var skillCreateBtn = document.getElementById('skillCreateBtn');
@@ -2629,6 +2826,82 @@ var skillCreateOverlay = document.getElementById('skillCreateOverlay');
 if (skillCreateOverlay) {
   skillCreateOverlay.addEventListener('click', function (e) {
     if (e.target === skillCreateOverlay) hideSkillCreateForm();
+  });
+}
+
+// ────────── AI导入事件绑定 ──────────
+
+var aiImportBtn = document.getElementById('aiImportBtn');
+if (aiImportBtn) {
+  aiImportBtn.addEventListener('click', showAiImportPanel);
+}
+
+var aiImportCloseBtn = document.getElementById('aiImportCloseBtn');
+if (aiImportCloseBtn) {
+  aiImportCloseBtn.addEventListener('click', hideAiImportPanel);
+}
+
+var aiImportCancelBtn = document.getElementById('aiImportCancelBtn');
+if (aiImportCancelBtn) {
+  aiImportCancelBtn.addEventListener('click', hideAiImportPanel);
+}
+
+var aiImportOverlay = document.getElementById('aiImportOverlay');
+if (aiImportOverlay) {
+  aiImportOverlay.addEventListener('click', function (e) {
+    if (e.target === aiImportOverlay) hideAiImportPanel();
+  });
+}
+
+var aiImportSelectBtn = document.getElementById('aiImportSelectBtn');
+if (aiImportSelectBtn) {
+  aiImportSelectBtn.addEventListener('click', function () {
+    var input = document.getElementById('aiImportFileInput');
+    if (input) input.click();
+  });
+}
+
+var aiImportFileInput = document.getElementById('aiImportFileInput');
+if (aiImportFileInput) {
+  aiImportFileInput.addEventListener('change', handleAiImportFileSelect);
+}
+
+var aiImportConfirmBtn = document.getElementById('aiImportConfirmBtn');
+if (aiImportConfirmBtn) {
+  aiImportConfirmBtn.addEventListener('click', triggerAiImport);
+}
+
+// AI导入拖拽事件
+var aiImportDropZone = document.getElementById('aiImportDropZone');
+var aiImportFileArea = document.getElementById('aiImportFileArea');
+if (aiImportDropZone && aiImportFileArea) {
+  aiImportDropZone.addEventListener('dragover', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    aiImportFileArea.classList.add('drag-over');
+  });
+  aiImportDropZone.addEventListener('dragleave', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    aiImportFileArea.classList.remove('drag-over');
+  });
+  aiImportDropZone.addEventListener('drop', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    aiImportFileArea.classList.remove('drag-over');
+    var dt = e.dataTransfer;
+    if (dt && dt.files && dt.files.length > 0) {
+      var input = document.getElementById('aiImportFileInput');
+      if (input) {
+        var dT = new DataTransfer();
+        for (var i = 0; i < dt.files.length; i++) {
+          dT.items.add(dt.files[i]);
+        }
+        input.files = dT.files;
+        var event = new Event('change', { bubbles: true });
+        input.dispatchEvent(event);
+      }
+    }
   });
 }
 

@@ -3495,6 +3495,242 @@ select.config-input {
   max-height: none;
 }
 
+/* ===== AI Import Panel ===== */
+
+.ai-import-btn {
+  margin-left: 8px;
+}
+
+.ai-import-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.ai-import-overlay.hidden {
+  display: none;
+}
+
+.ai-import-panel {
+  background: var(--ctp-base);
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 12px;
+  width: 480px;
+  max-width: calc(100% - 32px);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.ai-import-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--ctp-surface1);
+  flex-shrink: 0;
+}
+
+.ai-import-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ctp-text);
+}
+
+.ai-import-close-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  color: var(--ctp-subtext0);
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.ai-import-close-btn:hover {
+  background: var(--ctp-surface0);
+  color: var(--ctp-text);
+}
+
+.ai-import-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 120px;
+}
+
+.ai-import-file-area {
+  border: 2px dashed var(--ctp-surface2);
+  border-radius: 10px;
+  padding: 24px;
+  text-align: center;
+  transition: border-color 0.2s ease;
+}
+
+.ai-import-file-area.drag-over {
+  border-color: var(--ctp-mauve);
+  background: rgba(203, 166, 247, 0.06);
+}
+
+.ai-import-select-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: 1px solid var(--ctp-surface2);
+  background: var(--ctp-surface0);
+  color: var(--ctp-text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ai-import-select-btn:hover {
+  border-color: var(--ctp-mauve);
+  color: var(--ctp-mauve);
+}
+
+.ai-import-empty-hint {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--ctp-subtext0);
+}
+
+.ai-import-file-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-import-file-list.hidden {
+  display: none;
+}
+
+.ai-import-file-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--ctp-surface0);
+  border: 1px solid var(--ctp-surface1);
+  border-radius: 8px;
+  transition: border-color 0.15s ease;
+}
+
+.ai-import-file-item:hover {
+  border-color: var(--ctp-surface2);
+}
+
+.ai-import-file-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.ai-import-file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ai-import-file-name {
+  font-size: 13px;
+  color: var(--ctp-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ai-import-file-size {
+  font-size: 11px;
+  color: var(--ctp-subtext0);
+  margin-top: 2px;
+}
+
+.ai-import-file-remove {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  color: var(--ctp-subtext0);
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.ai-import-file-remove:hover {
+  background: rgba(237, 135, 150, 0.15);
+  color: var(--ctp-red);
+}
+
+.ai-import-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--ctp-surface1);
+  flex-shrink: 0;
+}
+
+.ai-import-cancel-btn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--ctp-surface2);
+  background: transparent;
+  color: var(--ctp-subtext0);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-import-cancel-btn:hover {
+  border-color: var(--ctp-surface1);
+  color: var(--ctp-text);
+}
+
+.ai-import-confirm-btn {
+  padding: 8px 24px;
+  border-radius: 8px;
+  border: 1px solid var(--ctp-blue);
+  background: var(--ctp-blue);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-import-confirm-btn:hover {
+  opacity: 0.9;
+}
+
+.ai-import-confirm-btn:disabled {
+  background: var(--ctp-surface2);
+  border-color: var(--ctp-surface2);
+  color: var(--ctp-subtext0);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.ai-import-confirm-btn:disabled:hover {
+  opacity: 0.6;
+}
+
 /* ===== Skill Detail Popup ===== */
 
 .skill-detail-overlay {
