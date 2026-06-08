@@ -14,7 +14,7 @@ Just chat with it – it can operate web pages, analyze data, and remember your 
 
 | Platform | Status | Download | Installation Guide | One-Click Install |
 |----------|--------|----------|---------------------|-------------------|
-| Chrome | ✅ Supported | [Download](release/AIHelper-chrome.zip) | [Installation Guide](#chrome--edge--opera) | - |
+| Chrome | ✅ Supported | [Download](release/AIHelper-chrome.zip) | [Installation Guide](#chrome--edge--opera) | [![Chrome](https://img.shields.io/badge/Chrome-Install_Addon-4285F4?logo=google-chrome&logoColor=white&style=for-the-badge)](https://chrome.google.com/webstore/detail/nkimedamccdojfikikbabldciidhcepf) |
 | Firefox | ✅ Supported | [Download](release/AIHelper-firefox.zip) | [Installation Guide](#firefox) | [![Firefox](https://img.shields.io/badge/Firefox-Install_Addon-FF7139?logo=firefox-browser&logoColor=white&style=for-the-badge)](https://addons.mozilla.org/firefox/addon/aihelper/) |
 | Edge | ✅ Supported | [Download](release/AIHelper-chrome.zip) | [Installation Guide](#chrome--edge--opera) | - |
 | Opera | ✅ Supported | [Download](release/AIHelper-chrome.zip) | [Installation Guide](#chrome--edge--opera) | - |

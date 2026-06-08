@@ -16,7 +16,7 @@
 
 | 平台 | 状态 | 下载 | 详细安装教程 | 一键安装 |
 |------|------|------|------|------|
-| Chrome | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [详细安装教程](#chrome--edge--opera) | - |
+| Chrome | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [详细安装教程](#chrome--edge--opera) | [![Chrome](https://img.shields.io/badge/Chrome-安装插件-4285F4?logo=google-chrome&logoColor=white&style=for-the-badge)](https://chrome.google.com/webstore/detail/nkimedamccdojfikikbabldciidhcepf) |
 | Firefox | ✅ 已适配 | [下载](release/AIHelper-firefox.zip) | [详细安装教程](#firefox) | [![Firefox](https://img.shields.io/badge/Firefox-安装插件-FF7139?logo=firefox-browser&logoColor=white&style=for-the-badge)](https://addons.mozilla.org/firefox/addon/aihelper/) |
 | Edge | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [详细安装教程](#chrome--edge--opera) | - |
 | Opera | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [详细安装教程](#chrome--edge--opera) | - |
