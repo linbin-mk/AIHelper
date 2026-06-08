@@ -34,7 +34,7 @@ Here are some things you can say to it:
 - **💻 "Read the technical design on these pages and generate all the code."** → Parses design documents and automatically generates complete code.
 - **🐞 "Diagnose this CICD pipeline failure and find out what went wrong."** → Opens the CICD page, directly analyzes logs, locates errors, and suggests fixes.
 - **🛡️ "Run a system health check for me."** → Automatically scans multiple system pages, summarizes status, and generates a patrol report.
-- **🧠 "Anything you need a browser for, just tell me."** → Filling forms, snatching tickets, price comparison, auto check-in, batch downloading, monitoring page changes, translating entire sites... whatever a browser can do, XiaoA can do for you.
+- **🧠 "Anything you need a browser for, just tell me."** → Filling forms, snatching tickets, price comparison, auto check-in, batch downloading, monitoring page changes, translating entire sites... whatever a browser can do, AI Helper can do for you.
 
 ### Demo
 

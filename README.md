@@ -21,6 +21,18 @@ AI总结，AI填表，AI讲解，聊天就能操作浏览器，提供一种全�
 | Opera | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [详细安装教程](#chrome--edge--opera) | - |
 | 其他 Chromium 内核浏览器 | ✅ 已适配 | [下载](release/AIHelper-chrome.zip) | [详细安装教程](#chrome--edge--opera) | - |
 
+## 效果演示
+
+> 演示数据均为 AI 随机生成，仅供展示效果
+
+<img src="demo/scene-01.png" width="420" />
+<br>
+<img src="demo/scene-02.png" width="420" />
+<br>
+<img src="demo/scene-03.png" width="420" />
+<br>
+<img src="demo/scene-04.png" width="420" />
+
 ## 例子
 
 比如你可以对它说：
@@ -36,19 +48,7 @@ AI总结，AI填表，AI讲解，聊天就能操作浏览器，提供一种全�
 - **💻「看这几个页面的技术概要设计，给我输出全部代码」** → 解析设计文档，自动生成完整代码
 - **🐞「排查这次 CICD 流水线报错，看看哪里出了问题」** → 打开 CICD 网页直接分析日志，定位错误并给出修复建议
 - **🛡️「帮我做一次系统巡检」** → 自动扫描多个系统页面，汇总状态并生成巡检报告
-- **🧠「所有你要用浏览器干的事，告诉我就行」** → 填表单、抢票、比价、自动签到、批量下载、监控页面变化、翻译整站……只要浏览器能做的，小A都能替你干
-
-### 效果演示
-
-> 演示数据均为 AI 随机生成，仅供展示效果
-
-<img src="demo/scene-01.png" width="420" />
-<br>
-<img src="demo/scene-02.png" width="420" />
-<br>
-<img src="demo/scene-03.png" width="420" />
-<br>
-<img src="demo/scene-04.png" width="420" />
+- **🧠「所有你要用浏览器干的事，告诉我就行」** → 填表单、抢票、比价、自动签到、批量下载、监控页面变化、翻译整站……只要浏览器能做的，AI Helper 都能替你干
 
 ## 适配模型
 
