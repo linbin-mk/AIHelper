@@ -1,16 +1,15 @@
 [English](README_EN.md) | 中文
 
-# AI Helper · 小A
+# AI Helper — 开源浏览器全能助手
 
-<img src="chrome-extension/icons/mainicon.png" alt="小A" width="173" />
+<img src="chrome-extension/icons/mainicon.png" alt="AI Helper" width="173" />
 
 
 <br>
 
 
-你的浏览器 AI Agent「小A」
-
-聊天就能让它帮你操作网页、分析数据、记住你的习惯。
+<h3>AI + 浏览器插件——浏览器使用新范式<br><br>
+AI总结，AI填表，AI讲解，聊天就能操作浏览器，提供一种全新的操作体验。</h3>
 
 ## 适配平台
 

@@ -1,14 +1,13 @@
 English | [中文](README.md)
 
-# AI Helper · XiaoA
+# AI Helper — Open-Source All-in-One Browser Assistant
 
-<img src="chrome-extension/icons/mainicon.png" alt="XiaoA" width="173" />
+<img src="chrome-extension/icons/mainicon.png" alt="AI Helper" width="173" />
 
 <br>
 
-Your Browser AI Agent "XiaoA"
-
-Just chat with it – it can operate web pages, analyze data, and remember your preferences.
+<h3>AI + Browser Extension — A New Paradigm for Browsing<br><br>
+AI Summarize, AI Form Fill, AI Explain — chat to operate the browser, delivering a whole new experience.</h3>
 
 ## Supported Platforms
 
