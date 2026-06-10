@@ -86,6 +86,7 @@ function switchTab(tabId) {
 }
 
 async function refreshChatView() {
+  if (typeof _isSending !== 'undefined' && _isSending) return;
   const activeId = await SessionManager.getActiveSessionId();
   if (activeId) {
     const session = await SessionManager.getSession(activeId);

@@ -662,6 +662,7 @@ async function getMaxToolRounds() {
 }
 
 let currentAbortController = null;
+window._pendingInteraction = null;
 
 function getCurrentSessionMessages() {
   return window.chatMessages || [];
@@ -726,7 +727,7 @@ window.__getSkillRegistry().onSkillEvent(function () {
 
 renderSkillStatusBar();
 
-function renderChatMessages(messages) {
+async function renderChatMessages(messages) {
   chatMessagesEl.innerHTML = '';
   if (!messages || messages.length === 0) {
     chatMessagesEl.innerHTML = '<div class="empty-hint">' + t('chat.emptyHint') + '</div>';
@@ -804,28 +805,110 @@ function renderChatMessages(messages) {
         }
       }
 
-      if (allToolCalls.length > 1) {
-        var groupedCard = createGroupedToolCard(allToolCalls);
-        for (var ti = 0; ti < allToolCalls.length; ti++) {
-          var tArgsObj = safeParseArgs(allToolCalls[ti].function.arguments);
-          updateGroupedSubItem(groupedCard, ti, 'executing', { args: tArgsObj });
-          if (ti < allResults.length) {
-            updateGroupedSubItem(groupedCard, ti, 'completed', { result: allResults[ti] });
+      var INTERACTIVE_NAMES = ['ask_user', 'request_auth', 'display_table', 'provide_file', 'present_output_files'];
+      var interactiveTools = [];
+      var regularToolCalls = [];
+      var regularResults = [];
+
+      for (var ti = 0; ti < allToolCalls.length; ti++) {
+        var tname = allToolCalls[ti].function.name;
+        if (INTERACTIVE_NAMES.indexOf(tname) !== -1) {
+          interactiveTools.push({ tc: allToolCalls[ti], result: allResults[ti] || '' });
+        } else {
+          regularToolCalls.push(allToolCalls[ti]);
+          regularResults.push(allResults[ti] || '');
+        }
+      }
+
+      if (regularToolCalls.length > 1) {
+        var groupedCard = createGroupedToolCard(regularToolCalls);
+        for (var rti = 0; rti < regularToolCalls.length; rti++) {
+          var rArgsObj = safeParseArgs(regularToolCalls[rti].function.arguments);
+          updateGroupedSubItem(groupedCard, rti, 'executing', { args: rArgsObj });
+          if (rti < regularResults.length) {
+            updateGroupedSubItem(groupedCard, rti, 'completed', { result: regularResults[rti] });
           }
         }
         autoCollapseGroupCard(groupedCard);
-        i = scanIdx - 1;
-        continue;
+      } else if (regularToolCalls.length === 1) {
+        var rtc = regularToolCalls[0];
+        var rargsObj = safeParseArgs(rtc.function.arguments);
+        var rcardData = createCollapsibleToolCard(rtc.function.name);
+        setCardState(rcardData, 'executing', { args: rargsObj });
+        if (regularResults.length > 0) {
+          setCardState(rcardData, 'completed', { result: regularResults[0] });
+        }
+        setCardState(rcardData, 'collapsed');
       }
 
-      var tc = allToolCalls[0];
-      var argsObj = safeParseArgs(tc.function.arguments);
-      var cardData = createCollapsibleToolCard(tc.function.name);
-      setCardState(cardData, 'executing', { args: argsObj });
-      if (allResults.length > 0) {
-        setCardState(cardData, 'completed', { result: allResults[0] });
+      for (var iti = 0; iti < interactiveTools.length; iti++) {
+        var itc = interactiveTools[iti];
+        var itname = itc.tc.function.name;
+        var itArgs;
+        try {
+          itArgs = typeof itc.tc.function.arguments === 'string' ? JSON.parse(itc.tc.function.arguments) : (itc.tc.function.arguments || {});
+        } catch (_e) {
+          itArgs = {};
+        }
+
+        if (itname === 'ask_user') {
+          var question = itArgs.question || '';
+          var options = itArgs.options || [];
+          var allowFreeInput = itArgs.allowFreeInput === true;
+          var placeholder = itArgs.placeholder || '';
+          var multiSelect = itArgs.multiSelect === true;
+          if (window._pendingInteraction && window._pendingInteraction.type === 'ask_user' && window._pendingInteraction.toolCallId === itc.tc.id) {
+            var qWrapper = createQuestionCard(question, options.length > 0 ? options : null, allowFreeInput, placeholder, multiSelect);
+            var qExt = { resolve: window._pendingInteraction.resolve, reject: window._pendingInteraction.reject };
+            handleQuestionCard(qWrapper, options, allowFreeInput, multiSelect, qExt);
+          } else {
+            createReadonlyQuestionCard(question, options.length > 0 ? options : null, allowFreeInput, placeholder, multiSelect);
+          }
+        } else if (itname === 'request_auth') {
+          var action = itArgs.action || '';
+          var detail = itArgs.detail || '';
+          var riskLevel = itArgs.riskLevel || '';
+          if (window._pendingInteraction && window._pendingInteraction.type === 'request_auth' && window._pendingInteraction.toolCallId === itc.tc.id) {
+            var aWrapper = createAuthCard(action, detail, riskLevel);
+            var aExt = { resolve: window._pendingInteraction.resolve, reject: window._pendingInteraction.reject };
+            handleAuthCard(aWrapper, aExt);
+          } else {
+            createReadonlyAuthCard(action, detail, riskLevel);
+          }
+        } else if (itname === 'display_table') {
+          var title = itArgs.title || '';
+          var columns = itArgs.columns || [];
+          var rows = itArgs.rows || [];
+          var clickable = itArgs.clickable === true;
+          if (clickable && window._pendingInteraction && window._pendingInteraction.type === 'display_table' && window._pendingInteraction.toolCallId === itc.tc.id) {
+            var tWrapper = createTableCard(title, columns, rows, true);
+            var tExt = { resolve: window._pendingInteraction.resolve, reject: window._pendingInteraction.reject };
+            handleTableCard(tWrapper, true, tExt);
+          } else {
+            createReadonlyTableCard(title, columns, rows);
+          }
+        } else if (itname === 'provide_file') {
+          var fileName = itArgs.fileName || 'download.txt';
+          var content = itArgs.content || '';
+          var mimeType = itArgs.mimeType || 'text/plain';
+          createFileCard(fileName, content, mimeType);
+        } else if (itname === 'present_output_files') {
+          var pathPrefix = itArgs.pathPrefix || '';
+          var showTree = itArgs.showTree !== false;
+          var emptyMessage = itArgs.emptyMessage || null;
+          try {
+            await createOutputCollectionCard({ pathPrefix: pathPrefix, showTree: showTree, emptyMessage: emptyMessage });
+          } catch (_oe) {
+            var oWrapper = createCollapsibleToolCard('present_output_files');
+            setCardState(oWrapper, 'collapsed');
+          }
+        }
       }
-      setCardState(cardData, 'collapsed');
+
+      i = scanIdx - 1;
+      if (regularToolCalls.length > 0 || interactiveTools.length > 0) {
+        continue;
+      }
     }
 
     if (msg.content) {
@@ -1344,8 +1427,10 @@ function createQuestionCard(question, options, allowFreeInput, placeholder, mult
   return wrapper;
 }
 
-function handleQuestionCard(cardWrapper, options, allowFreeInput, multiSelect) {
+function handleQuestionCard(cardWrapper, options, allowFreeInput, multiSelect, extResolvers) {
   return new Promise(function (resolve, reject) {
+    var _resolve = (extResolvers && extResolvers.resolve) ? extResolvers.resolve : resolve;
+    var _reject = (extResolvers && extResolvers.reject) ? extResolvers.reject : reject;
     var resolved = false;
 
     function resolveWith(value) {
@@ -1366,7 +1451,7 @@ function handleQuestionCard(cardWrapper, options, allowFreeInput, multiSelect) {
         input.disabled = true;
         input.style.opacity = '0.5';
       }
-      resolve(value);
+      _resolve(value);
     }
 
     if (multiSelect) {
@@ -1432,6 +1517,26 @@ function handleQuestionCard(cardWrapper, options, allowFreeInput, multiSelect) {
   });
 }
 
+function createReadonlyQuestionCard(question, options, allowFreeInput, placeholder, multiSelect) {
+  const wrapper = createQuestionCard(question, options, allowFreeInput, placeholder, multiSelect);
+  var allBtns = wrapper.querySelectorAll('.question-card-option-btn, .question-card-submit-btn, .question-card-confirm-btn');
+  for (var i = 0; i < allBtns.length; i++) {
+    allBtns[i].disabled = true;
+    allBtns[i].style.opacity = '0.5';
+    allBtns[i].style.cursor = 'not-allowed';
+  }
+  var checkboxes = wrapper.querySelectorAll('.question-card-checkbox');
+  for (var j = 0; j < checkboxes.length; j++) {
+    checkboxes[j].disabled = true;
+  }
+  var input = wrapper.querySelector('.question-card-input');
+  if (input) {
+    input.disabled = true;
+    input.style.opacity = '0.5';
+  }
+  return wrapper;
+}
+
 function createAuthCard(action, detail, riskLevel) {
   const wrapper = document.createElement('div');
   wrapper.className = 'chat-message chat-message-auth-card';
@@ -1488,8 +1593,10 @@ function createAuthCard(action, detail, riskLevel) {
   return wrapper;
 }
 
-function handleAuthCard(cardWrapper) {
+function handleAuthCard(cardWrapper, extResolvers) {
   return new Promise(function (resolve, reject) {
+    var _resolve = (extResolvers && extResolvers.resolve) ? extResolvers.resolve : resolve;
+    var _reject = (extResolvers && extResolvers.reject) ? extResolvers.reject : reject;
     var resolved = false;
 
     var approveBtn = cardWrapper.querySelector('.auth-btn-approve');
@@ -1508,7 +1615,7 @@ function handleAuthCard(cardWrapper) {
       statusEl.className = 'auth-card-status auth-card-status-approved';
       statusEl.textContent = '✓ ' + (t ? t('chat.authCardApproved') : '已授权');
       cardWrapper.querySelector('.chat-bubble-auth-card').appendChild(statusEl);
-      resolve({ authorized: true });
+      _resolve({ authorized: true });
     });
 
     rejectBtn.addEventListener('click', function () {
@@ -1524,7 +1631,7 @@ function handleAuthCard(cardWrapper) {
       statusEl.className = 'auth-card-status auth-card-status-rejected';
       statusEl.textContent = '✕ ' + (t ? t('chat.authCardRejected') : '已拒绝');
       cardWrapper.querySelector('.chat-bubble-auth-card').appendChild(statusEl);
-      reject(new Error('auth_rejected'));
+      _reject(new Error('auth_rejected'));
     });
 
     var abortHandler = function () {
@@ -1540,6 +1647,23 @@ function handleAuthCard(cardWrapper) {
       currentAbortController.signal.addEventListener('abort', abortHandler);
     }
   });
+}
+
+function createReadonlyAuthCard(action, detail, riskLevel) {
+  const wrapper = createAuthCard(action, detail, riskLevel);
+  var approveBtn = wrapper.querySelector('.auth-btn-approve');
+  var rejectBtn = wrapper.querySelector('.auth-btn-reject');
+  if (approveBtn) {
+    approveBtn.disabled = true;
+    approveBtn.style.opacity = '0.5';
+    approveBtn.style.cursor = 'not-allowed';
+  }
+  if (rejectBtn) {
+    rejectBtn.disabled = true;
+    rejectBtn.style.opacity = '0.5';
+    rejectBtn.style.cursor = 'not-allowed';
+  }
+  return wrapper;
 }
 
 function createTableCard(title, columns, rows, clickable) {
@@ -1597,8 +1721,10 @@ function createTableCard(title, columns, rows, clickable) {
   return wrapper;
 }
 
-function handleTableCard(cardWrapper, clickable) {
+function handleTableCard(cardWrapper, clickable, extResolvers) {
   return new Promise(function (resolve, reject) {
+    var _resolve = (extResolvers && extResolvers.resolve) ? extResolvers.resolve : resolve;
+    var _reject = (extResolvers && extResolvers.reject) ? extResolvers.reject : reject;
     var resolved = false;
 
     function resolveWith(value) {
@@ -1610,11 +1736,11 @@ function handleTableCard(cardWrapper, clickable) {
         allRows[i].style.cursor = 'not-allowed';
         allRows[i].style.pointerEvents = 'none';
       }
-      resolve(value);
+      _resolve(value);
     }
 
     if (!clickable) {
-      resolve({ displayed: true });
+      _resolve({ displayed: true });
       return;
     }
 
@@ -1643,6 +1769,11 @@ function handleTableCard(cardWrapper, clickable) {
       });
     }
   });
+}
+
+function createReadonlyTableCard(title, columns, rows) {
+  const wrapper = createTableCard(title, columns, rows, false);
+  return wrapper;
 }
 
 function downloadFileContent(fileName, content, mimeType) {
@@ -2597,7 +2728,7 @@ async function startAgentLoop(userMessage, signal) {
         msgs2.push(assistantMsg);
         messages.push(assistantMsg);
 
-        const toolResult = await executeToolCall(tc.function.name, tc.function.arguments);
+        const toolResult = await executeToolCall(tc.function.name, tc.function.arguments, tc.id);
         const toolMsg = {
           role: 'tool',
           tool_call_id: tc.id,
@@ -2726,7 +2857,7 @@ async function startAgentLoop(userMessage, signal) {
   setSending(false);
 }
 
-async function executeToolCall(name, argsStr) {
+async function executeToolCall(name, argsStr, toolCallId) {
   if (name === 'activate_skill') {
     try {
       const args = typeof argsStr === 'string' ? JSON.parse(argsStr) : argsStr;
@@ -2896,6 +3027,11 @@ async function executeToolCall(name, argsStr) {
   }
 
   if (name === 'ask_user') {
+    var _askResolvers = {};
+    var _askPromise = new Promise(function(resolve, reject) {
+      _askResolvers.resolve = resolve;
+      _askResolvers.reject = reject;
+    });
     try {
       const args = typeof argsStr === 'string' ? JSON.parse(argsStr) : argsStr;
       const question = args.question || '';
@@ -2903,24 +3039,38 @@ async function executeToolCall(name, argsStr) {
       const allowFreeInput = args.allowFreeInput === true;
       const placeholder = args.placeholder || '';
       const multiSelect = args.multiSelect === true;
+      window._pendingInteraction = { type: 'ask_user', toolCallId, args: { question, options, allowFreeInput, placeholder, multiSelect }, resolve: _askResolvers.resolve, reject: _askResolvers.reject };
       const cardWrapper = createQuestionCard(question, options.length > 0 ? options : null, allowFreeInput, placeholder, multiSelect);
-      const userResponse = await handleQuestionCard(cardWrapper, options, allowFreeInput, multiSelect);
+      handleQuestionCard(cardWrapper, options, allowFreeInput, multiSelect, _askResolvers);
+      const userResponse = await _askPromise;
+      window._pendingInteraction = null;
       return JSON.stringify({ answer: userResponse });
     } catch (err) {
+      window._pendingInteraction = null;
+      _askResolvers.reject(err);
       return JSON.stringify({ error: '提问被取消: ' + (err.message || '') });
     }
   }
 
   if (name === 'request_auth') {
+    var _authResolvers = {};
+    var _authPromise = new Promise(function(resolve, reject) {
+      _authResolvers.resolve = resolve;
+      _authResolvers.reject = reject;
+    });
     try {
       const args = typeof argsStr === 'string' ? JSON.parse(argsStr) : argsStr;
       const action = args.action || '';
       const detail = args.detail || '';
       const riskLevel = args.riskLevel || '';
+      window._pendingInteraction = { type: 'request_auth', toolCallId, args: { action, detail, riskLevel }, resolve: _authResolvers.resolve, reject: _authResolvers.reject };
       const cardWrapper = createAuthCard(action, detail, riskLevel);
-      const result = await handleAuthCard(cardWrapper);
+      handleAuthCard(cardWrapper, _authResolvers);
+      const result = await _authPromise;
+      window._pendingInteraction = null;
       return JSON.stringify(result);
     } catch (err) {
+      window._pendingInteraction = null;
       if (err.message === 'auth_rejected') {
         if (currentAbortController) {
           currentAbortController.abort();
@@ -2934,16 +3084,33 @@ async function executeToolCall(name, argsStr) {
   }
 
   if (name === 'display_table') {
+    var _tableClickable = false;
     try {
       const args = typeof argsStr === 'string' ? JSON.parse(argsStr) : argsStr;
       const title = args.title || '';
       const columns = args.columns || [];
       const rows = args.rows || [];
-      const clickable = args.clickable === true;
-      const cardWrapper = createTableCard(title, columns, rows, clickable);
-      const result = await handleTableCard(cardWrapper, clickable);
-      return JSON.stringify(result);
+      _tableClickable = args.clickable === true;
+      const cardWrapper = createTableCard(title, columns, rows, _tableClickable);
+      if (_tableClickable) {
+        var _tableResolvers = {};
+        var _tablePromise = new Promise(function(resolve, reject) {
+          _tableResolvers.resolve = resolve;
+          _tableResolvers.reject = reject;
+        });
+        window._pendingInteraction = { type: 'display_table', toolCallId, args: { title, columns, rows, clickable: true }, resolve: _tableResolvers.resolve, reject: _tableResolvers.reject };
+        handleTableCard(cardWrapper, _tableClickable, _tableResolvers);
+        const result = await _tablePromise;
+        window._pendingInteraction = null;
+        return JSON.stringify(result);
+      } else {
+        const result = await handleTableCard(cardWrapper, _tableClickable);
+        return JSON.stringify(result);
+      }
     } catch (err) {
+      if (_tableClickable) {
+        window._pendingInteraction = null;
+      }
       return JSON.stringify({ error: '表格展示失败: ' + (err.message || '') });
     }
   }
@@ -3960,6 +4127,7 @@ stopBtn.addEventListener('click', () => {
     currentAbortController.abort();
     currentAbortController = null;
   }
+  window._pendingInteraction = null;
   if (window.currentSessionId && typeof SessionManager !== 'undefined') {
     SessionManager._clearTitleTimer(window.currentSessionId);
   }
