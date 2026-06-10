@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AI Helper",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "实时捕获当前页面所有网络请求，支持请求头挟持和 Cookie 监控",
   "permissions": [
     "sidePanel",
