@@ -11,7 +11,7 @@
 
 ## 项目结构
 
-本扩展同时支持 Chrome（含 Edge、Opera 等 Chromium 内核浏览器）和 Firefox。
+本扩展同时支持 Chrome（含其他 Chromium 内核浏览器）和 Firefox。
 
 ```
 AIHelper/
